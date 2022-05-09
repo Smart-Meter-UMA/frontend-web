@@ -3,6 +3,7 @@ import BarraSup from './components/barraSup';
 import Login from './web/login';
 import { Route, Routes } from 'react-router-dom';
 import Home from './web/home';
+import Perfil from './web/perfil';
 
 function App() {
   return (
@@ -11,6 +12,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Home />}/>
         <Route path="/login" element={<Login />}/>
+        <Route path="/perfil" element={<Perfil />}/>
       </Routes>
     </div>
   );

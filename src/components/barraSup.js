@@ -26,7 +26,7 @@ function BarraSup() {
     return(
       <Navbar bg="dark" variant="dark">
       <Container>
-      <Navbar.Brand href="#home">
+      <Navbar.Brand href="/">
           <img src={logo} width="35" height="35"  className="d-inline-block align-top"/>
           {' '}
           K-Project
@@ -38,7 +38,7 @@ function BarraSup() {
     return (
       <Navbar bg="dark" variant="dark">
       <Container>
-      <Navbar.Brand href="#home">
+      <Navbar.Brand href="/">
           <img src={logo} width="35" height="35"  className="d-inline-block align-top"/>
           {' '}
           K-Project
