@@ -28,9 +28,14 @@ function Perfil() {
     }else{
         return(
             <>
-                Mi perfil {currentUser.email}
+                <h1>Mi perfil {currentUser.email}</h1>
+                <form>
+                    <label>Nombre:</label>
+                    <input type={Text} required> {currentUser.nombre}</input>
+                    <label>Apellidos:</label>
+                    <input type={Text} required></input>
+                </form>
             </>
-            
         );
     }
 }
