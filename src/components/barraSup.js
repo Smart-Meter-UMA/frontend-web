@@ -10,15 +10,10 @@ function BarraSup() {
 
   const [currentUser, setCurrentUser] = useState(null);
   useEffect(() => {
-    if(window.location.pathname !== "/login"){
+    if(window.location.pathname !== "/login" && window.location.pathname !== "/registrarse"){
       onAuthStateChanged(auth, (user) => {
-        if (user) {
-          var requestOptions = {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json'},
-            body: JSON.stringify({"email":user.email, "nombre":user.displayName})
-          };
-          fetch(process.env.REACT_APP_BASE_URL + "login/", requestOptions).then
+        if (user && sessionStorage.getItem("id") !== null) {
+          fetch(process.env.REACT_APP_BASE_URL + "usuarios/" + sessionStorage.getItem("id")).then
           (response => response.json()).then
           ((data) => {
             setCurrentUser(data)

@@ -46,20 +46,15 @@ function Perfil() {
 
     useEffect(() => {
         onAuthStateChanged(auth, (user) => {
-            if (user) {
-              var requestOptions = {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json'},
-                body: JSON.stringify({"email":user.email})
-              };
-              fetch(process.env.REACT_APP_BASE_URL + "login/", requestOptions).then
-              (response => response.json()).then
-              ((data) => {
-                setCurrentUser(data)
-                isLoaded(true)
-                setNombre(data.nombre)
-                setApellidos(data.apellidos)
-              })
+            if (user && sessionStorage.getItem("id") !== null) {
+                fetch(process.env.REACT_APP_BASE_URL + "usuarios/" + sessionStorage.getItem("id")).then
+                (response => response.json()).then
+                ((data) => {
+                  setCurrentUser(data)
+                  setNombre(data.nombre)
+                  setApellidos(data.apellidos)
+                  isLoaded(true)
+                })
             }
         })
       }, [])
