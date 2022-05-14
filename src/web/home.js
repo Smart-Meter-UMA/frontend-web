@@ -48,7 +48,7 @@ function Home() {
     }else{
         return(
             <>
-                Home {currentUser.email}
+                Home
                 <a href={'/registro/hogar'}>Registro de un hogar</a>
                 <Modal show={show} onHide={handleClose}>
                     <Modal.Header closeButton>
