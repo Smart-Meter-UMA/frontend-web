@@ -32,6 +32,7 @@ function Home() {
         return(
             <>
                 Home {currentUser.email}
+                <a href={'/registro/hogar'}>Registro de un hogar</a>
             </>
         )
     }
