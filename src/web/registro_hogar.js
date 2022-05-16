@@ -11,20 +11,15 @@ function Registro_Hogar() {
     const [loaded, isLoaded] = useState(false);
     const [nombre, setNombre] = useState("");
     const [potencia, setPotencia] = useState(null);
-    const [hogar, setHogar] = useState(null);
 
     const AddHogar = () => {
         var requestOptions = {
             method: 'POST',
             headers: { 'Content-Type': 'application/json'},
-            body: JSON.stringify({"nombre":nombre, "potencia":potencia,"owner":currentUser})
+            body: JSON.stringify({"nombre":nombre, "potencia_contratada":potencia,"owner":currentUser})
           };
           fetch(process.env.REACT_APP_BASE_URL + "hogars/", requestOptions).then
-          (response => response.json()).then
-          ((data) => {
-            setHogar(data)
-          }).then
-          (window.location.replace("/hogars/"+hogar.id))
+          (response => {window.location.replace("/")})
     }
     
     useEffect(() => {
@@ -52,7 +47,7 @@ function Registro_Hogar() {
             <>
                 <h1>Registre su nuevo hogar</h1>
                 <label>Nombre: </label>
-                <input type="text" name="nombre" onChange={(e) => setNombre(e.target.value)} required/> <br/>
+                <input type="text" name="nombre" onChange={(e) => setNombre(e.target.value)} maxLength="20" required/> <br/>
                 <label>Potencia contratada: </label>
                 <input type="number" name="potencia" onChange={(e) => setPotencia(e.target.value)} min="0"/> KW <br/>
 
