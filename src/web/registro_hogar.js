@@ -11,6 +11,7 @@ function Registro_Hogar() {
     const [loaded, isLoaded] = useState(false);
     const [nombre, setNombre] = useState("");
     const [potencia, setPotencia] = useState(null);
+    const [hogar, setHogar] = useState(null);
 
     const AddHogar = () => {
         var requestOptions = {
@@ -18,9 +19,12 @@ function Registro_Hogar() {
             headers: { 'Content-Type': 'application/json'},
             body: JSON.stringify({"nombre":nombre, "potencia":potencia,"owner":currentUser})
           };
-          console.log(requestOptions)
           fetch(process.env.REACT_APP_BASE_URL + "hogars/", requestOptions).then
-          (response => {window.location.replace("/")})
+          (response => response.json()).then
+          ((data) => {
+            setHogar(data)
+          }).then
+          (window.location.replace("/hogars/"+hogar.id))
     }
     
     useEffect(() => {
