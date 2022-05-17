@@ -10,17 +10,23 @@ function Registro_Hogar() {
     const [currentUser, setCurrentUser] = useState(null);
     const [loaded, isLoaded] = useState(false);
     const [nombre, setNombre] = useState("");
-    const [potencia, setPotencia] = useState(null);
+    const [potencia, setPotencia] = useState(0);
+    const [hogar, setHogar] = useState(null);
 
     const AddHogar = () => {
-        var requestOptions = {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json'},
-            body: JSON.stringify({"nombre":nombre, "potencia_contratada":potencia,"owner":currentUser})
-          };
-          fetch(process.env.REACT_APP_BASE_URL + "hogars/", requestOptions).then
-          (response => {window.location.replace("/")})
-    }
+      var potencia_aux = 0
+      if (potencia != null && potencia != ""){
+        potencia_aux = potencia
+      }
+      
+      var requestOptions = {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json'},
+          body: JSON.stringify({"nombre":nombre, "potencia_contratada":potencia_aux,"owner":currentUser})
+        };
+        fetch(process.env.REACT_APP_BASE_URL + "hogars/", requestOptions).then
+        (response => response.json())
+  }
     
     useEffect(() => {
         onAuthStateChanged(auth, (user) => {
@@ -49,7 +55,7 @@ function Registro_Hogar() {
                 <label>Nombre: </label>
                 <input type="text" name="nombre" onChange={(e) => setNombre(e.target.value)} maxLength="20" required/> <br/>
                 <label>Potencia contratada: </label>
-                <input type="number" name="potencia" onChange={(e) => setPotencia(e.target.value)} min="0"/> KW <br/>
+                <input type="number" name="potencia" onChange={(e) => setPotencia(e.target.value)} min="0" defaultValue={0}/> KW <br/>
 
                 <Button variant="primary" onClick={AddHogar}>Añadir hogar</Button>
             </>
