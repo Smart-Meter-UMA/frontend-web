@@ -50,6 +50,7 @@ function Home() {
             <>
                 Home
                 <a href={'/registro/hogar'}>Registro de un hogar</a>
+                <Button onClick={handleShow}>Ver invitaciones</Button>
                 <Modal show={show} onHide={handleClose}>
                     <Modal.Header closeButton>
                         <Modal.Title>Invitaciones</Modal.Title>

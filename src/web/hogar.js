@@ -36,6 +36,9 @@ function Hogar(){
         })
     };
 
+    //Para estadisticas
+    const [estadisticas, setEstadisticas] = useState(null);
+
     useEffect(() =>{
         fetch(process.env.REACT_APP_BASE_URL + "hogars/" + id).then
         (response => response.json()).then
@@ -48,6 +51,12 @@ function Hogar(){
                 if(data.length !== 0){
                     setRadioValue(data[0].id)
                     setHayDispositivos(true)
+                    fetch(process.env.REACT_APP_BASE_URL + "dispositivos/" + data[0].id + "/estadisticas").then
+                    (response => response.json()).then
+                    ((data) => {
+                        setEstadisticas(data)
+                        isLoaded(true)
+                    })
                 }else{
                     setHayDispositivos(false)
                 }
@@ -124,156 +133,128 @@ function Hogar(){
                 </Col>
             </Row>
             <br/>
-            <Row>
-                <Col></Col>
-                <Col>
-                    Consumido de hoy: 
-                </Col>
-                <Col>
-                    Consumido de este mes:
-                </Col>
-                <Col></Col>
-            </Row>
-            <Row>
-            <Col></Col>
-                <Col></Col>
-                <Col>
-                    10 KW/h
-                </Col>
-                <Col>
-                </Col>
-                <Col>
-                    200 KW/h
-                </Col>
-                <Col></Col>
-                <Col></Col>
-            </Row>
-            <Row>
-                <Col></Col>
-                <Col><Row>Medida diaria:</Row></Col>
-                <Col>
-                    10 KW/h
-                </Col>
-                <Col><Row>Medida mensual:</Row></Col>
-                <Col>
-                    200 KW/h
-                </Col>
-                <Col></Col>
-                <Col></Col>
-            </Row>
-            <Row>
-            <Col></Col>
-                <Col><Row>Limite minimo diario:</Row></Col>
-                <Col>
-                    10 KW/h
-                </Col>
-                <Col>
-                   <Row>Limite minimo mensual:</Row>
-                </Col>
-                <Col>
-                    200 KW/h
-                </Col>
-                <Col></Col>
-                <Col></Col>
-            </Row>
-            <Row>
-            <Col></Col>
-                <Col><Row>Limite máximo diario:</Row></Col>
-                <Col>
-                    10 KW/h
-                </Col>
-                <Col>
-                   <Row>Limite máximo mensual:</Row>
-                </Col>
-                <Col>
-                    200 KW/h
-                </Col>
-                <Col></Col>
-                <Col></Col>
-            </Row>
-            <Row>
-                <Col sm={2}></Col>
-                <Col>
-                    <Row>
-                        <Tabs
-                            id="controlled-tab-example"
-                            activeKey={key}
-                            onSelect={(k) => setKey(k)}
-                            className="mb-3"
-                        >
-                            <Tab eventKey="filtrar" title="Filtrar">
-                                <Container>
-                                    <Row>
-                                        <Col><Row>Filtrar por:</Row></Col>
-                                        <Col sm={2}><Row><label><input type="checkbox"/>Tramos de tiempo</label></Row></Col>
-                                        <Col sm={4}><Row><label><input type="checkbox"/>Valores máximos y mínimos de consumo</label></Row></Col>
-                                        <Col></Col>
-                                        <Col></Col>
-                                        <Col></Col>
-                                        <Col></Col>
-                                    </Row>
-                                    <Row>
-                                        <Col sm={4}>
-                                            <Row>
-                                                <Col><Row>Fecha de inicio:</Row></Col>
-                                                <Col><Row><input type={"datetime-local"}/></Row></Col>
-                                            </Row>    
-                                        </Col>
-                                        <Col></Col>
-                                        <Col sm={7}>
-                                            <Row>
-                                                <Col><Row>Fecha fin:</Row></Col>
-                                                <Col><Row><input type={"datetime-local"}/></Row></Col>
-                                                <Col></Col>
-                                                <Col></Col>
-                                                <Col></Col>
-                                                <Col></Col>
-                                            </Row>    
-                                        </Col>
-                                    </Row>
-                                    <br/>
-                                    <Row>
-                                        <Col sm={4}>
-                                            <Row>
-                                                <Col><Row>Valor mínimo:</Row></Col>
-                                                <Col><Row><input type={"number"}/></Row></Col>
-                                            </Row>    
-                                        </Col>
-                                        <Col></Col>
-                                        <Col sm={7}>
-                                            <Row>
-                                                <Col><Row>Valor máximo:</Row></Col>
-                                                <Col><Row><input type={"number"}/></Row></Col>
-                                                <Col></Col>
-                                                <Col></Col>
-                                                <Col></Col>
-                                            </Row>    
-                                        </Col>
-                                    </Row>
-                                    <Row>
-                                        <AnyChart
-                                            id="lineChart"
-                                            width={800}
-                                            height={600}
-                                            type="line"
-                                            data={[[2,3],[3,5]]}
-                                            title="KW/H"
-                                        />
-                                    </Row>
-                                </Container>
-                            </Tab>
-                            <Tab eventKey="estadisticas" title="Estadisticas">
-                                Profile
-                            </Tab>
-                            <Tab eventKey="predicciones" title="Prediciones">
-                                Contact
-                            </Tab>
-                        </Tabs>
+            {estadisticas !== null && (
+                <>
+                <Row>
+                    <Col></Col>
+                    <Col>
+                        Consumido de hoy: 
+                    </Col>
+                    <Col>
+                        Consumido de este mes:
+                    </Col>
+                    <Col></Col>
+                </Row>
+                <Row>
+                    <Col></Col>
+                    <Col></Col>
+                    <Col>{estadisticas.consumidoHoy} KW</Col>
+                    <Col></Col>
+                    <Col>{estadisticas.consumidoMes} KW</Col>
+                    <Col></Col>
+                </Row>
+                <Row>
+                    <Col></Col>
+                    <Col><Row>Medida diaria:</Row></Col>
+                    <Col>{estadisticas.mediaDiaria} KW</Col>
+                    <Col><Row>Medida mensual:</Row></Col>
+                    <Col>{estadisticas.mediaMensual} KW</Col>
+                    <Col></Col>
+                </Row>
+                <Row>
+                    <Col></Col>
+                    <Col><Row>Mínimo diario:</Row></Col>
+                    <Col>{estadisticas.minDiaKw} KW</Col>
+                    <Col><Row>Mínimo mensual:</Row></Col>
+                    <Col>{estadisticas.minMesKw} KW</Col>
+                    <Col></Col>
+                </Row>
+                <Row>
+                    <Col></Col>
+                    <Col><Row>Máximo diario:</Row></Col>
+                    <Col>{estadisticas.maxDiaKw} KW</Col>
+                    <Col><Row>Limite máximo mensual:</Row></Col>
+                    <Col>{estadisticas.maxMesKw} KW</Col>
+                    <Col></Col>
+                </Row>
+                <Row>
+                    <Col sm={2}></Col>
+                    <Col>
+                        <Row>
+                            <Tabs
+                                id="controlled-tab-example"
+                                activeKey={key}
+                                onSelect={(k) => setKey(k)}
+                                className="mb-3"
+                            >
+                                <Tab eventKey="filtrar" title="Filtrar">
+                                    <Container>
+                                        <Row>
+                                            <Col sm={1}><Row>Filtrar por:</Row></Col>
+                                            <Col sm={3}><Row><label><input type="checkbox"/> Tramos de tiempo</label></Row></Col>
+                                            <Col sm={5}><Row><label><input type="checkbox"/> Valores máximos y mínimos de consumo</label></Row></Col>
+                                            <Col></Col>
+                                            <Col></Col>
+                                            <Col></Col>
+                                            <Col></Col>
+                                        </Row>
+                                        <Row>
+                                            <Col sm={5}>
+                                                <Row>
+                                                    <Col><Row>Fecha inicio:</Row></Col>
+                                                    <Col><Row><input type={"datetime-local"}/></Row></Col>
+                                                </Row>    
+                                            </Col>
+                                            <Col></Col>
+                                            <Col sm={5}>
+                                                <Row>
+                                                    <Col><Row>Fecha fin:</Row></Col>
+                                                    <Col><Row><input type={"datetime-local"}/></Row></Col>
+                                                </Row>    
+                                            </Col>
+                                        </Row>
+                                        <br/>
+                                        <Row>
+                                            <Col sm={4}>
+                                                <Row>
+                                                    <Col><Row>Valor mínimo:</Row></Col>
+                                                    <Col><Row><input type={"number"}/></Row></Col>
+                                                </Row>    
+                                            </Col>
+                                            <Col></Col>
+                                            <Col sm={5}>
+                                                <Row>
+                                                    <Col><Row>Valor máximo:</Row></Col>
+                                                    <Col><Row><input type={"number"}/></Row></Col>
+                                                </Row>    
+                                            </Col>
+                                        </Row>
+                                        <Row>
+                                            <AnyChart
+                                                id="lineChart"
+                                                width={800}
+                                                height={600}
+                                                type="line"
+                                                data={[[2,3],[3,5]]}
+                                                title="KW"
+                                            />
+                                        </Row>
+                                    </Container>
+                                </Tab>
+                                <Tab eventKey="estadisticas" title="Estadisticas">
+                                    Profile
+                                </Tab>
+                                <Tab eventKey="predicciones" title="Prediciones">
+                                    Contact
+                                </Tab>
+                            </Tabs>
+                        </Row>
+                    </Col>
+                    <Col sm={2}></Col>
+                </Row>
+                </>
+            )}
 
-                    </Row>
-                </Col>
-                <Col sm={2}></Col>
-            </Row>
                 
                 
             </>
