@@ -20,6 +20,7 @@ function Hogar(){
     const [key, setKey] = useState('filtrar');
 
     const [show, setShow] = useState(false);
+    const [showCompartir, setShowCompartir] = useState(false);
 
     const handleClose = () => setShow(false);
     const handleShow = () => {
@@ -34,6 +35,10 @@ function Hogar(){
             }
             setShow(true)
         })
+    };
+    const handleCloseCompartir = () => setShowCompartir(false);
+    const handleShowCompartir = () => {
+            setShowCompartir(true)
     };
 
     useEffect(() =>{
@@ -73,11 +78,12 @@ function Hogar(){
             <Modal show={show} onHide={handleClose}>
                     <Modal.Header closeButton>
                         <Modal.Title>Compatidos</Modal.Title>
+                        <Button variant="primary" onClick={handleShowCompartir}>Invitar</Button>
                     </Modal.Header>
                     <Modal.Body>
                         <Container>
                             {!hayCompartidos && 
-                                <h5>No has compartido con nadie!</h5>
+                                <h5>No has compartido con nadie!</h5> 
                             }
                             {hayCompartidos &&
                                compartidos.map((compartido) => (
@@ -87,6 +93,19 @@ function Hogar(){
                                     </Row>
                                ))
                             }
+                        </Container>
+                    </Modal.Body>
+            </Modal>
+            <Modal show={showCompartir} onHide={handleCloseCompartir}>
+                    <Modal.Header closeButton>
+                        <Modal.Title>Compartir con</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>
+                        <Container>
+                            <Row>
+                                <Col><input type="text" name="correo" required/></Col>
+                                <Col><Button>Compartir</Button></Col>
+                            </Row>
                         </Container>
                     </Modal.Body>
             </Modal>
