@@ -11,7 +11,6 @@ function Registro_Hogar() {
     const [loaded, isLoaded] = useState(false);
     const [nombre, setNombre] = useState("");
     const [potencia, setPotencia] = useState(0);
-    const [hogar, setHogar] = useState(null);
 
     const AddHogar = () => {
       var potencia_aux = 0
@@ -25,7 +24,10 @@ function Registro_Hogar() {
           body: JSON.stringify({"nombre":nombre, "potencia_contratada":potencia_aux,"owner":currentUser})
         };
         fetch(process.env.REACT_APP_BASE_URL + "hogars/", requestOptions).then
-        (response => response.json())
+        (response => response.json()).then
+        ((data) =>{
+            window.location.replace("/hogar/"+data.id)
+        })
   }
     
     useEffect(() => {
