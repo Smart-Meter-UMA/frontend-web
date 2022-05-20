@@ -18,7 +18,7 @@ function Perfil() {
             headers: { 'Content-Type': 'application/json','Authorization' : sessionStorage.getItem("token")},
             body: JSON.stringify({"nombre":nombre,"apellidos":apellidos})
           };
-          fetch(process.env.REACT_APP_BASE_URL + "usuarios/", requestOptions).then
+          fetch(process.env.REACT_APP_BASE_URL + "usuarios/" + currentUser.id, requestOptions).then
           (response => {window.location.replace("/perfil")})
     }
     
@@ -27,7 +27,7 @@ function Perfil() {
             method: 'DELETE',
             headers: { 'Content-Type': 'application/json','Authorization' : sessionStorage.getItem("token")}
         };
-        fetch(process.env.REACT_APP_BASE_URL + "usuarios/").then
+        fetch(process.env.REACT_APP_BASE_URL + "usuarios/" + currentUser.id, requestOptions).then
         (response => {window.location.replace("/login")},
         error =>{})
     }
@@ -40,6 +40,9 @@ function Perfil() {
         fetch(process.env.REACT_APP_BASE_URL+"login/",requestOptions).then(response => response.json()).then
         ((data) => {
             setCurrentUser(data)
+            setNombre(data.nombre)
+            setApellidos(data.apellidos)
+            isLoaded(true)
         })
       }, [])
 
