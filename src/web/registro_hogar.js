@@ -1,13 +1,9 @@
 import { useEffect, useState } from "react";
 import Loading from "../components/Loading";
-import {auth} from '../components/Firebase'
-import { onAuthStateChanged, getAuth, deleteUser } from "firebase/auth";
 import { Button } from "react-bootstrap";
 
 
 function Registro_Hogar() {
-
-    const [currentUser, setCurrentUser] = useState(null);
     const [loaded, isLoaded] = useState(false);
     const [nombre, setNombre] = useState("");
     const [potencia, setPotencia] = useState(0);
@@ -20,8 +16,8 @@ function Registro_Hogar() {
       
       var requestOptions = {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json'},
-          body: JSON.stringify({"nombre":nombre, "potencia_contratada":potencia_aux,"owner":currentUser})
+          headers: { 'Content-Type': 'application/json','Authorization' : sessionStorage.getItem("token")},
+          body: JSON.stringify({"nombre":nombre, "potencia_contratada":potencia_aux})
         };
         fetch(process.env.REACT_APP_BASE_URL + "hogars/", requestOptions).then
         (response => response.json()).then
@@ -29,24 +25,11 @@ function Registro_Hogar() {
             window.location.replace("/hogar/"+data.id)
         })
   }
-    
-    useEffect(() => {
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-              var requestOptions = {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json'},
-                body: JSON.stringify({"email":user.email})
-              };
-              fetch(process.env.REACT_APP_BASE_URL + "login/", requestOptions).then
-              (response => response.json()).then
-              ((data) => {
-                setCurrentUser(data)
-                isLoaded(true)
-              })
-            }
-        })
-      }, [])
+  useEffect(() => {
+    if(sessionStorage.getItem("token") !== null){
+      isLoaded(true)
+    }
+  },[])
 
     if (!loaded){
         return <Loading />

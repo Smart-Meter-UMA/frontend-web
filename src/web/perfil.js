@@ -1,7 +1,5 @@
 import { useEffect, useState } from "react";
 import Loading from "../components/Loading";
-import {auth} from '../components/Firebase'
-import { onAuthStateChanged, getAuth, deleteUser } from "firebase/auth";
 import { Button } from "react-bootstrap";
 
 
@@ -9,8 +7,6 @@ function Perfil() {
 
     const [currentUser, setCurrentUser] = useState(null);
     const [loaded, isLoaded] = useState(false);
-    const [email, setEmail] = useState("");
-    const [username, setUsername] = useState("");
     const [nombre, setNombre] = useState("");
     const [apellidos, setApellidos] = useState("");
 
@@ -19,43 +15,31 @@ function Perfil() {
         currentUser.apellidos = apellidos
         var requestOptions = {
             method: 'PUT',
-            headers: { 'Content-Type': 'application/json'},
-            body: JSON.stringify(currentUser)
+            headers: { 'Content-Type': 'application/json','Authorization' : sessionStorage.getItem("token")},
+            body: JSON.stringify({"nombre":nombre,"apellidos":apellidos})
           };
-          fetch(process.env.REACT_APP_BASE_URL + "usuarios/"+currentUser.id, requestOptions).then
+          fetch(process.env.REACT_APP_BASE_URL + "usuarios/", requestOptions).then
           (response => {window.location.replace("/perfil")})
     }
     
     const DeleteInfo = () => {
-        try{
-            const auth = getAuth();
-            const user = auth.currentUser;
-            deleteUser(user).then(() => {
-                var requestOptions = {
-                    method: 'DELETE',
-                    headers: { 'Content-Type': 'application/json'}
-                };
-                fetch(process.env.REACT_APP_BASE_URL + "usuarios/" + currentUser.id,requestOptions).then
-                (response => window.location.replace("/login"))
-              }).catch((error) => {
-              });
-        }catch (error){
-            console.log(error)
-        }
+        var requestOptions = {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json','Authorization' : sessionStorage.getItem("token")}
+        };
+        fetch(process.env.REACT_APP_BASE_URL + "usuarios/").then
+        (response => {window.location.replace("/login")},
+        error =>{})
     }
 
     useEffect(() => {
-        onAuthStateChanged(auth, (user) => {
-            if (user && sessionStorage.getItem("id") !== null) {
-                fetch(process.env.REACT_APP_BASE_URL + "usuarios/" + sessionStorage.getItem("id")).then
-                (response => response.json()).then
-                ((data) => {
-                  setCurrentUser(data)
-                  setNombre(data.nombre)
-                  setApellidos(data.apellidos)
-                  isLoaded(true)
-                })
-            }
+        var requestOptions = {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json','Authorization' : sessionStorage.getItem("token") }
+        };
+        fetch(process.env.REACT_APP_BASE_URL+"login/",requestOptions).then(response => response.json()).then
+        ((data) => {
+            setCurrentUser(data)
         })
       }, [])
 

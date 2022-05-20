@@ -23,7 +23,11 @@ function Hogar(){
 
     const handleClose = () => setShow(false);
     const handleShow = () => {
-        fetch(process.env.REACT_APP_BASE_URL + "hogars/" + id + "/compartidos").then
+        var requestOptions = {
+            method: 'GET',
+            headers: { 'Authorization' : sessionStorage.getItem("token") }
+        };
+        fetch(process.env.REACT_APP_BASE_URL + "hogars/" + id + "/compartidos",requestOptions).then
         (response => response.json()).then
         ((data) => {
             setCompartidos(data)
@@ -36,38 +40,52 @@ function Hogar(){
         })
     };
 
+    function handleChangeDispositivo(id){
+        var requestOptions = {
+            method: 'GET',
+            headers: { 'Authorization' : sessionStorage.getItem("token") }
+        };
+        fetch(process.env.REACT_APP_BASE_URL + "dispositivos/" + id, requestOptions).then
+        (response => response.json()).then
+        ((data) =>{
+            setEstadisticas(data.estadisticas)
+            setRadioValue(id)
+        })
+
+    }
+
     //Para estadisticas
     const [estadisticas, setEstadisticas] = useState(null);
 
     useEffect(() =>{
-        fetch(process.env.REACT_APP_BASE_URL + "hogars/" + id).then
+        var requestOptions = {
+            method: 'GET',
+            headers: { 'Authorization' : sessionStorage.getItem("token") }
+        };
+        fetch(process.env.REACT_APP_BASE_URL + "hogars/" + id, requestOptions).then
         (response => response.json()).then
         ((data) => {
             setHogar(data)
-            fetch(process.env.REACT_APP_BASE_URL + "hogars/" + id + "/dispositivos").then
-            (response => response.json()).then
-            ((data) => {
-                setDispositivos(data)
-                if(data.length !== 0){
-                    setRadioValue(data[0].id)
-                    setHayDispositivos(true)
-                    fetch(process.env.REACT_APP_BASE_URL + "dispositivos/" + data[0].id + "/estadisticas").then
-                    (response => response.json()).then
-                    ((data) => {
-                        setEstadisticas(data)
-                        isLoaded(true)
-                    })
-                }else{
-                    setHayDispositivos(false)
-                }
+            setHayDispositivos(data.dispositivos.length !== 0)
+            setDispositivos(data.dispositivos)
+            if (data.dispositivos.length !== 0){
+                setRadioValue(data.dispositivos[0].id)
+                fetch(process.env.REACT_APP_BASE_URL + "dispositivos/" + id, requestOptions).then
+                (response => response.json()).then
+                ((data) =>{
+                    setEstadisticas(data.estadisticas)
+                    isLoaded(true)
+                })
+            }else{
                 isLoaded(true)
-            })
+            }
         })
     }, [])
 
     function handleDejarCompartir(id){
         var requestOptions = {
-            method: 'DELETE'
+            method: 'DELETE',
+            headers: { 'Authorization' : sessionStorage.getItem("token") }
         };
         fetch(process.env.REACT_APP_BASE_URL + "compartidos/" + id, requestOptions).then
         (response => {handleClose()})
@@ -103,7 +121,7 @@ function Hogar(){
                 <Row className="justify-content-md-center">
                     <Col xs lg="2"></Col>
                     <Col md="auto"><h1>{hogar.nombre}</h1></Col>
-                    <Col xs lg="2"><Button onClick={() => {window.location.replace("/edicionHogar/" + hogar.id)}}>Editar</Button></Col>
+                    <Col xs lg="2"><Button hidden={!hogar.editable} onClick={() => {window.location.replace("/edicionHogar/" + hogar.id)}}>Editar</Button></Col>
                     <Col xs lg="2"><Button onClick={handleShow}>Compartidos</Button></Col>
                 </Row>
             </Container>
@@ -123,7 +141,7 @@ function Hogar(){
                     variant="outline-primary"
                     name="radio"
                     checked={radioValue === dispositivo.id}
-                    onChange={(e) => setRadioValue(dispositivo.id)}
+                    onChange={() => {handleChangeDispositivo(id)}}
                     >
                         {dispositivo.nombre}
                     </ToggleButton>

@@ -13,7 +13,11 @@ function Home() {
     const handleShow = () => setShow(true);
 
     useEffect(() => {
-        fetch(process.env.REACT_APP_BASE_URL + "usuarios/" + sessionStorage.getItem("id") + "/invitacions").then
+        var requestOptions = {
+            method: 'GET',
+            headers: { 'Content-Type': 'application/json','Authorization' : sessionStorage.getItem("token") }
+        };
+        fetch(process.env.REACT_APP_BASE_URL + "invitacionsRecibidas/",requestOptions).then
         (response => response.json()).then
         ((data) => {
             setInvitaciones(data)
@@ -25,7 +29,7 @@ function Home() {
         })
       }, [])
 
-    function aceptarInvitacion(id, hogar, currentUser){
+    function aceptarInvitacion(id, hogar){
         var requestOptions = {
             method: 'DELETE'
         };
@@ -33,8 +37,8 @@ function Home() {
         (response => {
             var requestOptions = {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json'},
-                body: JSON.stringify({"compartido":currentUser,"hogarCompartido":hogar})
+                headers: { 'Content-Type': 'application/json','Authorization' : sessionStorage.getItem("token")},
+                body: JSON.stringify({"hogarCompartido":hogar})
             };
             fetch(process.env.REACT_APP_BASE_URL + "compartidos/", requestOptions).then
             (response => {
@@ -63,9 +67,9 @@ function Home() {
                             {hayInvitaciones &&
                                invitaciones.map((invitacion) => (
                                    <Row>
-                                       <Col>{invitacion.invitante.email}</Col>
+                                       <Col>{invitacion.ofertante.email}</Col>
                                        <Col>{invitacion.hogarInvitado.nombre}</Col>
-                                       <Col><Button onClick={() => {aceptarInvitacion(invitacion.id, invitacion.hogarInvitado, invitacion.invitado)}}>Aceptar</Button>{' '}</Col>
+                                       <Col><Button onClick={() => {aceptarInvitacion(invitacion.id, invitacion.hogarInvitado)}}>Aceptar</Button>{' '}</Col>
                                        <Col><Button>Denegar</Button>{' '}</Col>
                                    </Row>
                                ))

@@ -2,32 +2,30 @@ import { Container, Nav, Navbar, NavDropdown } from "react-bootstrap";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import logo from '../assets/logoSmartMeterNoFondo2.png';
 import { useEffect, useState } from "react";
-import {auth} from '../components/Firebase'
-import { onAuthStateChanged } from "firebase/auth";
-import { signOut } from 'firebase/auth';
 
 function BarraSup() {
 
   const [currentUser, setCurrentUser] = useState(null);
   useEffect(() => {
-    if(window.location.pathname !== "/login" && window.location.pathname !== "/registrarse"){
-      onAuthStateChanged(auth, (user) => {
-        if (user && sessionStorage.getItem("id") !== null) {
-          fetch(process.env.REACT_APP_BASE_URL + "usuarios/" + sessionStorage.getItem("id")).then
-          (response => response.json()).then
-          ((data) => {
-            setCurrentUser(data)
-          })
-        } else {
-            window.location.replace("/login")
-        }
+    if(sessionStorage.getItem("token") !== null){
+      var requestOptions = {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json','Authorization' : sessionStorage.getItem("token") }
+      };
+      fetch(process.env.REACT_APP_BASE_URL+"login/",requestOptions).then(response => response.json()).then
+      ((data) => {
+        setCurrentUser(data)
+      }, (error) => {
+        sessionStorage.removeItem("token")
+        window.location.replace("/login")
       })
-    }
+    }else if (sessionStorage.getItem("token") === null && window.location.pathname !== "/login"){
+      window.location.replace("/login")
+  }
 }, [])
 
   const logout = (e) => {
-    sessionStorage.removeItem("idUsuario")
-    signOut(auth)
+    sessionStorage.removeItem("token")
     window.location.replace("/login");
   }
 

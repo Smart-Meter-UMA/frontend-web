@@ -17,23 +17,19 @@ function EdicionHogar(){
     const [dispositivos, setDispositivos] = useState([])
     
     useEffect(() =>{
-        fetch(process.env.REACT_APP_BASE_URL + "hogars/" + id).then
+        var requestOptions = {
+            method: 'GET',
+            headers: { 'Content-Type': 'application/json','Authorization' : sessionStorage.getItem("token") }
+        };
+        fetch(process.env.REACT_APP_BASE_URL + "hogars/" + id, requestOptions).then
         (response => response.json()).then
         ((data) => {
             setHogar(data)
             setNombre(data.nombre)
             setPotencia_contratada(data.potencia_contratada)
-            fetch(process.env.REACT_APP_BASE_URL + "hogars/" + id + "/dispositivos").then
-            (response => response.json()).then
-            ((data) => {
-                setDispositivos(data)
-                if(data.length !== 0){
-                    setHayDispositivos(true)
-                }else{
-                    setHayDispositivos(false)
-                }
-                isLoaded(true)
-            })
+            setDispositivos(data.dispositivos)
+            setHayDispositivos(data.dispositivos.length !== 0)
+            isLoaded(true)
         })
     }, [])
 
@@ -50,7 +46,8 @@ function EdicionHogar(){
 
         function borrarHogar(){
             var requestOptions = {
-                method: 'DELETE'
+                method: 'DELETE',
+                headers: { 'Authorization' : sessionStorage.getItem("token") }
             };
             fetch(process.env.REACT_APP_BASE_URL + "hogars/" + id, requestOptions).then
             (response => {window.location.replace("/")})
@@ -63,7 +60,8 @@ function EdicionHogar(){
     
         function borrarDispositivo(){
             var requestOptions = {
-                method: 'DELETE'
+                method: 'DELETE',
+                headers: { 'Authorization' : sessionStorage.getItem("token") }
             };
             fetch(process.env.REACT_APP_BASE_URL + "dispositivos/" + idDispositivoABorrar, requestOptions).then
             (response => {window.location.replace("/edicionHogar/" + id)})
@@ -77,7 +75,7 @@ function EdicionHogar(){
         hogar.potencia_contratada = potencia_contratada
         var requestOptions = {
             method: 'PUT',
-            headers: { 'Content-Type': 'application/json'},
+            headers: { 'Content-Type': 'application/json', 'Authorization' : sessionStorage.getItem("token") },
             body: JSON.stringify(hogar)
           };
           fetch(process.env.REACT_APP_BASE_URL + "hogars/"+hogar.id, requestOptions).then
