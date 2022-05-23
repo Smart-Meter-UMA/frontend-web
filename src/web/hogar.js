@@ -5,6 +5,10 @@ import Loading from "../components/Loading";
 import Modal from 'react-bootstrap/Modal'
 import Tab from 'react-bootstrap/Tab'
 import AnyChart from 'anychart-react'
+import React from 'react'; 
+import {toast} from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
 
 function Hogar(){
     let {id} = useParams();
@@ -21,6 +25,8 @@ function Hogar(){
 
     const [show, setShow] = useState(false);
     const [showCompartir, setShowCompartir] = useState(false);
+
+    const [correoInvitado, setCorreoInvitado] = useState("");
 
     const handleClose = () => setShow(false);
     const handleShow = () => {
@@ -44,6 +50,23 @@ function Hogar(){
     const handleShowCompartir = () => {
             setShowCompartir(true)
     };
+    toast.configure();
+
+    const InviteHogar = () => {
+        var requestOptions = {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json','Authorization' : sessionStorage.getItem("token")},
+            body: JSON.stringify({"hogarInvitado": hogar, "correoInvitado": correoInvitado})
+          };
+          fetch(process.env.REACT_APP_BASE_URL + "ofrecerInvitacion/", requestOptions).then
+          (response => response.json()).then
+          (
+            setShowCompartir(false),
+            setShow(false),
+          ).then(
+            toast('Hello Geeks'),
+          )
+    }
 
     function handleChangeDispositivo(id){
         var requestOptions = {
@@ -56,7 +79,6 @@ function Hogar(){
             setEstadisticas(data.estadisticas)
             setRadioValue(id)
         })
-
     }
 
     //Para estadisticas
@@ -130,8 +152,8 @@ function Hogar(){
                     <Modal.Body>
                         <Container>
                             <Row>
-                                <Col><input type="text" name="correo" required/></Col>
-                                <Col><Button>Compartir</Button></Col>
+                                <Col><input type="text" name="correoInvitado" onChange={(e) => setCorreoInvitado(e.target.value)} required/></Col>
+                                <Col><Button onClick={InviteHogar}>Compartir</Button></Col>
                             </Row>
                         </Container>
                     </Modal.Body>
