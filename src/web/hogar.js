@@ -6,7 +6,7 @@ import Modal from 'react-bootstrap/Modal'
 import Tab from 'react-bootstrap/Tab'
 import AnyChart from 'anychart-react'
 import React from 'react'; 
-import {toast} from 'react-toastify';
+import {toast, ToastContainer} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 
@@ -50,7 +50,6 @@ function Hogar(){
     const handleShowCompartir = () => {
             setShowCompartir(true)
     };
-    toast.configure();
 
     const InviteHogar = () => {
         var requestOptions = {
@@ -60,11 +59,12 @@ function Hogar(){
           };
           fetch(process.env.REACT_APP_BASE_URL + "ofrecerInvitacion/", requestOptions).then
           (response => response.json()).then
-          (
-            setShowCompartir(false),
-            setShow(false),
-          ).then(
-            toast('Hello Geeks'),
+            ((data) =>{
+                console.log(data);
+                setShowCompartir(false);
+                setShow(false);
+            }).then(
+            toast.success("Has enviado una invitación a su hogar con éxito!")
           )
     }
 
@@ -123,6 +123,7 @@ function Hogar(){
     }else{
         return(
             <>
+            <ToastContainer />
             <br/>
             <Modal show={show} onHide={handleClose}>
                     <Modal.Header closeButton>
@@ -152,7 +153,7 @@ function Hogar(){
                     <Modal.Body>
                         <Container>
                             <Row>
-                                <Col><input type="text" name="correoInvitado" onChange={(e) => setCorreoInvitado(e.target.value)} required/></Col>
+                                <Col><input type="email" name="correoInvitado" onChange={(e) => setCorreoInvitado(e.target.value)} required/></Col>
                                 <Col><Button onClick={InviteHogar}>Compartir</Button></Col>
                             </Row>
                         </Container>
