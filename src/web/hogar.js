@@ -57,14 +57,12 @@ function Hogar(){
             headers: { 'Content-Type': 'application/json','Authorization' : sessionStorage.getItem("token")},
             body: JSON.stringify({"hogarInvitado": hogar, "correoInvitado": correoInvitado})
           };
-          var respuesta;
           fetch(process.env.REACT_APP_BASE_URL + "ofrecerInvitacion/", requestOptions).then
           (response => response.json()).then
             ((data) =>{
-                respuesta = data;
                 setShowCompartir(false);
                 setShow(false);
-                if (data.id){
+                if (!data.mensaje){
                     toast.success("Has enviado una invitación a su hogar con éxito!");
                 }else {
                     toast.error(data.mensaje);
@@ -131,8 +129,12 @@ function Hogar(){
             <br/>
             <Modal show={show} onHide={handleClose}>
                     <Modal.Header closeButton>
-                        <Modal.Title>Compatidos</Modal.Title>
-                        <Button variant="primary" onClick={handleShowCompartir}>Invitar</Button>
+                        <Container>
+                            <Row>
+                                <Col><Modal.Title>Compatidos</Modal.Title></Col>
+                                <Col><Button variant="primary" onClick={handleShowCompartir}>Invitar</Button></Col>
+                            </Row>
+                        </Container>
                     </Modal.Header>
                     <Modal.Body>
                         <Container>
