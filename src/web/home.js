@@ -46,6 +46,17 @@ function Home() {
             })
         })
     }
+
+    function rechazarInvitacion(id, hogar){
+        var requestOptions = {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json','Authorization' : sessionStorage.getItem("token")}
+        };
+        fetch(process.env.REACT_APP_BASE_URL + "invitacions/" + id, requestOptions).then
+                    (response => {
+                window.location.replace("/")
+            })
+    }
     
     if(!loaded){
         return <Loading />
@@ -70,7 +81,7 @@ function Home() {
                                        <Col>{invitacion.ofertante.email}</Col>
                                        <Col>{invitacion.hogarInvitado.nombre}</Col>
                                        <Col><Button onClick={() => {aceptarInvitacion(invitacion.id, invitacion.hogarInvitado)}}>Aceptar</Button>{' '}</Col>
-                                       <Col><Button>Denegar</Button>{' '}</Col>
+                                       <Col><Button onClick={() => {rechazarInvitacion(invitacion.id, invitacion.hogarInvitado)}}>Denegar</Button>{' '}</Col>
                                    </Row>
                                ))
                             }
