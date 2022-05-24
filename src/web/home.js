@@ -31,19 +31,13 @@ function Home() {
 
     function aceptarInvitacion(id, hogar){
         var requestOptions = {
-            method: 'DELETE'
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json','Authorization' : sessionStorage.getItem("token")},
+            body: JSON.stringify({"hogarCompartido":hogar})
         };
-        fetch(process.env.REACT_APP_BASE_URL + "invitacions/" + id, requestOptions).then
+        fetch(process.env.REACT_APP_BASE_URL + "compartidos/", requestOptions).then
         (response => {
-            var requestOptions = {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json','Authorization' : sessionStorage.getItem("token")},
-                body: JSON.stringify({"hogarCompartido":hogar})
-            };
-            fetch(process.env.REACT_APP_BASE_URL + "compartidos/", requestOptions).then
-            (response => {
-                window.location.replace("/")
-            })
+            window.location.replace("/")
         })
     }
 
