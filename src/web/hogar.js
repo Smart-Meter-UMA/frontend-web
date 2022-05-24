@@ -57,15 +57,19 @@ function Hogar(){
             headers: { 'Content-Type': 'application/json','Authorization' : sessionStorage.getItem("token")},
             body: JSON.stringify({"hogarInvitado": hogar, "correoInvitado": correoInvitado})
           };
+          var respuesta;
           fetch(process.env.REACT_APP_BASE_URL + "ofrecerInvitacion/", requestOptions).then
           (response => response.json()).then
             ((data) =>{
-                console.log(data);
+                respuesta = data;
                 setShowCompartir(false);
                 setShow(false);
-            }).then(
-            toast.success("Has enviado una invitación a su hogar con éxito!")
-          )
+                if (data.id){
+                    toast.success("Has enviado una invitación a su hogar con éxito!");
+                }else {
+                    toast.error(data.mensaje);
+                }
+            })
     }
 
     function handleChangeDispositivo(id){
