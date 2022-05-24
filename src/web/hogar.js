@@ -99,7 +99,7 @@ function Hogar(){
             setDispositivos(data.dispositivos)
             if (data.dispositivos.length !== 0){
                 setRadioValue(data.dispositivos[0].id)
-                fetch(process.env.REACT_APP_BASE_URL + "dispositivos/" + id, requestOptions).then
+                fetch(process.env.REACT_APP_BASE_URL + "dispositivos/" + data.dispositivos[0].id, requestOptions).then
                 (response => response.json()).then
                 ((data) =>{
                     setEstadisticas(data.estadisticas)
@@ -222,25 +222,25 @@ function Hogar(){
                 <Row>
                     <Col></Col>
                     <Col><Row>Medida diaria:</Row></Col>
-                    <Col>{estadisticas.mediaDiaria} KW</Col>
+                    <Col>{estadisticas.mediaKWHDiaria} KW</Col>
                     <Col><Row>Medida mensual:</Row></Col>
-                    <Col>{estadisticas.mediaMensual} KW</Col>
+                    <Col>{estadisticas.mediaKWHMensual} KW</Col>
                     <Col></Col>
                 </Row>
                 <Row>
                     <Col></Col>
                     <Col><Row>Mínimo diario:</Row></Col>
-                    <Col>{estadisticas.minDiaKw} KW</Col>
+                    <Col>{estadisticas.minKWHDiario} KW</Col>
                     <Col><Row>Mínimo mensual:</Row></Col>
-                    <Col>{estadisticas.minMesKw} KW</Col>
+                    <Col>{estadisticas.minKWHMensual} KW</Col>
                     <Col></Col>
                 </Row>
                 <Row>
                     <Col></Col>
                     <Col><Row>Máximo diario:</Row></Col>
-                    <Col>{estadisticas.maxDiaKw} KW</Col>
+                    <Col>{estadisticas.maxKWHDiario} KW</Col>
                     <Col><Row>Limite máximo mensual:</Row></Col>
-                    <Col>{estadisticas.maxMesKw} KW</Col>
+                    <Col>{estadisticas.maxKWHMensual} KW</Col>
                     <Col></Col>
                 </Row>
                 <Row>
