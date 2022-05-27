@@ -8,6 +8,7 @@ import AnyChart from 'anychart-react'
 import React from 'react'; 
 import {toast, ToastContainer} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import SideBar from "../components/SideBar.js";
 
 
 function Hogar(){
@@ -126,7 +127,6 @@ function Hogar(){
         return(
             <>
             <ToastContainer />
-            <br/>
             <Modal show={show} onHide={handleClose}>
                     <Modal.Header closeButton>
                         <Container>

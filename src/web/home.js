@@ -8,7 +8,6 @@ function Home() {
     const [invitaciones, setInvitaciones] = useState([])
 
     const [show, setShow] = useState(false);
-
     const handleClose = () => setShow(false);
     const handleShow = () => setShow(true);
 
@@ -21,7 +20,6 @@ function Home() {
         (response => response.json()).then
         ((data) => {
             setInvitaciones(data)
-            console.log(data)
             if(data.length !== 0){
                 setHayInvitaciones(true)
             }
