@@ -165,12 +165,13 @@ function Hogar(){
                         </Container>
                     </Modal.Body>
             </Modal>
+            <br/>
             <Container>
                 <Row className="justify-content-md-center">
                     <Col xs lg="2"></Col>
                     <Col md="auto"><h1>{hogar.nombre}</h1></Col>
                     <Col xs lg="2"><Button hidden={!hogar.editable} onClick={() => {window.location.replace("/edicionHogar/" + hogar.id)}}>Editar</Button></Col>
-                    <Col xs lg="2"><Button onClick={handleShow}>Compartidos</Button></Col>
+                    <Col xs lg="2"><Button hidden={!hogar.editable} onClick={handleShow}>Compartidos</Button></Col>
                 </Row>
             </Container>
                 <br/>
