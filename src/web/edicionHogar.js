@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
-import { Button, Col, Container, Row, Modal,Tab, Nav, Card } from "react-bootstrap";
+import { Button, Col, Container, Row, Modal,Tab, Nav, Card, OverlayTrigger, Tooltip, ButtonGroup } from "react-bootstrap";
 import { useParams } from "react-router-dom";
 import Loading from "../components/Loading";
 import iconoBorrar from "../assets/papelera.png"
+import iconoI from "../assets/iconoI.png"
 
 
 function EdicionHogar(){
@@ -79,6 +80,42 @@ function EdicionHogar(){
             body: JSON.stringify(hogar)
           };
           fetch(process.env.REACT_APP_BASE_URL + "hogars/"+hogar.id, requestOptions).then
+          (response => {window.location.replace("/hogar/"+hogar.id)})
+    }
+
+    const renderTooltipTiempoRefrescado = (props) => (
+        <Tooltip id="button-tooltip" {...props}>
+          Este parámetro sirve para modificar el tiempo por el cual el dispositivo refresca la información (-tiempo +actualizado).
+          Es en minutos y va desde 1 minuto hasta 15 minutos
+        </Tooltip>
+      );
+    
+    const renderTooltipTiempoMedida = (props) => (
+        <Tooltip id="button-tooltip" {...props}>
+          Este parámetro sirve para modificar el tiempo por el cual el dispositivo recoge medidas (- tiempo + precisión).
+          Es en segundos y va desde 1 segundo hasta 15 segundos
+        </Tooltip>
+      );
+    
+    const renderTooltipNotificacion = (props) => (
+        <Tooltip id="button-tooltip" {...props}>
+          Al activar las notificaciones recibiras correos cuando el Smart meter 
+          se pase a partir del limite máximo indicado en ese apartado. Es en Kwh
+
+          ¡¡Cuidado!! Recomendación no indicar los kwh justos sino un limite máximo
+          más bajo por que recuerde que por muy bajo que sea el tiempo de refrescado 
+          no será muy preciso.
+
+        </Tooltip>
+      );
+    
+    function actualiarDispositivo(i){
+        var requestOptions = {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json', 'Authorization' : sessionStorage.getItem("token") },
+            body: JSON.stringify(dispositivos[i])
+          };
+          fetch(process.env.REACT_APP_BASE_URL + "dispositivos/"+dispositivos[i].id, requestOptions).then
           (response => {window.location.replace("/hogar/"+hogar.id)})
     }
 
@@ -161,19 +198,19 @@ function EdicionHogar(){
                            </>)
                         }
                         {hayDispositivos &&
-                            <Tab.Container id="left-tabs-example" defaultActiveKey={dispositivos[0].nombre}>
+                            <Tab.Container id="left-tabs-example" defaultActiveKey={dispositivos[0].id}>
                                 <Row>
                                     <Col sm={3}>
                                         <Nav variant="pills" className="flex-column">
                                             {dispositivos.map((dispositivo) => (
-                                                <Nav.Item><Nav.Link eventKey={dispositivo.nombre}>{dispositivo.nombre}</Nav.Link></Nav.Item>
+                                                <Nav.Item><Nav.Link eventKey={dispositivo.id}>{dispositivo.nombre}</Nav.Link></Nav.Item>
                                             ))}
                                         </Nav>
                                     </Col>
                                     <Col sm={7}>
                                         <Tab.Content>
-                                            {dispositivos.map((dispositivo => (
-                                                <Tab.Pane eventKey={dispositivo.nombre}>
+                                            {dispositivos.map(((dispositivo,i) => (
+                                                <Tab.Pane eventKey={dispositivo.id}>
                                                     <Card>
                                                         <Card.Body>
                                                             <Container>
@@ -182,7 +219,7 @@ function EdicionHogar(){
                                                                     <Col>
                                                                         <Row>
                                                                             <Col><Row>Nombre:</Row></Col> 
-                                                                            <Col sm={7}><Row><input type="text" name="nombre" defaultValue={dispositivo.nombre}/></Row></Col>
+                                                                            <Col sm={7}><Row><input type="text" name="nombre" defaultValue={dispositivo.nombre} onChange={(e) =>{dispositivos[i].nombre = e.target.value; setDispositivos(dispositivos);}} /></Row></Col>
                                                                         </Row>
                                                                     </Col>
                                                                     <Col sm={3}></Col>
@@ -193,8 +230,8 @@ function EdicionHogar(){
                                                                     <Col>
                                                                         <Row>
                                                                             <Col><Row>General:</Row></Col> 
-                                                                            <Col><Row><label><input type={"radio"} name="general" value="SI" />{' '}Sí</label></Row></Col>
-                                                                            <Col><Row><label><input type={"radio"} name="general" value="NO" />{' '}No</label></Row></Col>
+                                                                            <Col><Row><label><input type={"radio"} name="general" defaultChecked={dispositivo.general} onClick={() =>{dispositivos[i].general = true; setDispositivos(dispositivos);}} />{' '}Sí</label></Row></Col>
+                                                                            <Col><Row><label><input type={"radio"} name="general" defaultChecked={!(dispositivo.general)} onClick={() =>{dispositivos[i].general = false; setDispositivos(dispositivos);}} />{' '}No</label></Row></Col>
                                                                         </Row>
                                                                     </Col>
                                                                     <Col sm={3}></Col>
@@ -203,14 +240,26 @@ function EdicionHogar(){
                                                                 <Row>
                                                                     <Col sm={2}></Col>
                                                                     <Col sm={6}><Row><h5>Notificaciones</h5></Row></Col>
-                                                                    <Col></Col>
+                                                                    <Col sm={1}><OverlayTrigger placement="right" delay={{ show: 250, hide: 400 }} overlay={renderTooltipNotificacion}><img src={iconoI} width="20" height="20" className="d-inline-block align-top"/></OverlayTrigger></Col>
                                                                 </Row>
                                                                 <Row>
                                                                     <Col sm={1}></Col>
                                                                     <Col>
                                                                         <Row>
+                                                                            <Col><Row>Notificacion:</Row></Col> 
+                                                                            <Col><Row><label><input type={"radio"} name="notificacion" defaultChecked={dispositivo.notificacion} onClick={() =>{dispositivos[i].notificacion = true; setDispositivos(dispositivos);}}/>{' '}Sí</label></Row></Col>
+                                                                            <Col><Row><label><input type={"radio"} name="notificacion" defaultChecked={!(dispositivo.notificacion)} onClick={() =>{dispositivos[i].notificacion = false; setDispositivos(dispositivos);}}/>{' '}No</label></Row></Col>
+                                                                        </Row>
+                                                                    </Col>
+                                                                    <Col sm={3}></Col>
+                                                                </Row>
+                                                                <br/>
+                                                                <Row>
+                                                                    <Col sm={1}></Col>
+                                                                    <Col>
+                                                                        <Row>
                                                                             <Col><Row>Límite mínimo:</Row></Col> 
-                                                                            <Col sm={7}><Row><input type="text" name="nombre" defaultValue={dispositivo.limite_minimo}/></Row></Col>
+                                                                            <Col sm={7}><Row><input type="number" name="limite_minimo" defaultValue={dispositivo.limite_minimo} onChange={(e) =>{dispositivos[i].limite_minimo = e.target.value; setDispositivos(dispositivos);}} /></Row></Col>
                                                                         </Row>
                                                                     </Col>
                                                                     <Col sm={3}></Col>
@@ -221,7 +270,36 @@ function EdicionHogar(){
                                                                     <Col>
                                                                         <Row>
                                                                             <Col><Row>Límite máximo:</Row></Col> 
-                                                                            <Col sm={7}><Row><input type="text" name="nombre" defaultValue={dispositivo.limite_maximo}/></Row></Col>
+                                                                            <Col sm={7}><Row><input type="number" name="limite_maximo" defaultValue={dispositivo.limite_maximo} onChange={(e) =>{dispositivos[i].limite_maximo = e.target.value; setDispositivos(dispositivos);}} /></Row></Col>
+                                                                        </Row>
+                                                                    </Col>
+                                                                    <Col sm={3}></Col>
+                                                                </Row>
+                                                                <br/>
+                                                                <Row>
+                                                                    <Col sm={2}></Col>
+                                                                    <Col sm={8}><Row><h5>Configuración dispositivo</h5></Row></Col>
+                                                                    <Col sm={1}></Col>
+                                                                </Row>
+                                                                <Row>
+                                                                    <Col sm={1}></Col>
+                                                                    <Col>
+                                                                        <Row>  
+                                                                            <Col><Row>Tiempo refrecado:</Row></Col>
+                                                                            <Col sm={5}><Row><input type="number" name="nombre" defaultValue={dispositivo.tiempo_refrescado} onChange={(e) =>{dispositivos[i].tiempo_refrescado = e.target.value; setDispositivos(dispositivos);}}/></Row></Col>
+                                                                            <Col sm={1}><OverlayTrigger placement="right" delay={{ show: 250, hide: 400 }} overlay={renderTooltipTiempoRefrescado}><img src={iconoI} width="20" height="20" className="d-inline-block align-top"/></OverlayTrigger></Col>
+                                                                        </Row>
+                                                                    </Col>
+                                                                    <Col sm={3}></Col>
+                                                                </Row>
+                                                                <br/>
+                                                                <Row>
+                                                                    <Col sm={1}></Col>
+                                                                    <Col>
+                                                                        <Row>  
+                                                                            <Col><Row>Tiempo medida:</Row></Col>
+                                                                            <Col sm={5}><Row><input type="number" name="tiempoMedida" defaultValue={dispositivo.tiempo_medida} onChange={(e) =>{dispositivos[i].tiempo_medida = e.target.value; setDispositivos(dispositivos);}}/></Row></Col>
+                                                                            <Col sm={1}><OverlayTrigger placement="right" delay={{ show: 250, hide: 400 }} overlay={renderTooltipTiempoMedida}><img src={iconoI} width="20" height="20" className="d-inline-block align-top"/></OverlayTrigger></Col>
                                                                         </Row>
                                                                     </Col>
                                                                     <Col sm={3}></Col>
@@ -230,7 +308,7 @@ function EdicionHogar(){
                                                                 <Row>
                                                                     <Col sm={2}><Button variant="danger" onClick={() => {handleMostrarModalBorrarDispositivo(dispositivo.id)}}><img src={iconoBorrar} width="20" height="20" className="d-inline-block align-top"/></Button></Col>
                                                                     <Col sm={1}></Col>
-                                                                    <Col><Row><Button>Actualizar Smart meter</Button></Row></Col>
+                                                                    <Col><Row><Button onClick={() => {actualiarDispositivo(i)}} >Actualizar Smart meter</Button></Row></Col>
                                                                     <Col sm={3}></Col>
                                                                 </Row>
                                                             </Container> 

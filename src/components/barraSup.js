@@ -106,12 +106,15 @@ function rechazarInvitacion(id, hogar){
                   }
                   {hayInvitaciones &&
                       invitaciones.map((invitacion) => (
+                        <>
                           <Row>
                               <Col sm={3}>{invitacion.ofertante.email}</Col>
                               <Col sm={3}>{invitacion.hogarInvitado.nombre}</Col>
                               <Col sm={3}><Button onClick={() => {aceptarInvitacion(invitacion.id, invitacion.hogarInvitado)}}>Aceptar</Button>{' '}</Col>
                               <Col sm={3}><Button variant="danger" onClick={() => {rechazarInvitacion(invitacion.id, invitacion.hogarInvitado)}}>Denegar</Button>{' '}</Col>
                           </Row>
+                          <br/>
+                          </>
                       ))
                   }
               </Container>
@@ -130,7 +133,7 @@ function rechazarInvitacion(id, hogar){
           {hogares.map((hogar) => (
             <NavDropdown.Item href={"/hogar/"+hogar.id}>{hogar.nombre}</NavDropdown.Item>
           ))}
-          <NavDropdown.Divider />
+          {hogares.length !== 0 &&  <NavDropdown.Divider />}
           <NavDropdown.Item href="/registro/hogar">Nuevo hogar</NavDropdown.Item>
         </NavDropdown>
       </Nav>

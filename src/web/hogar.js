@@ -48,9 +48,13 @@ function Hogar(){
         })
     };
     const handleCloseCompartir = () => setShowCompartir(false);
-    const handleShowCompartir = () => {
-            setShowCompartir(true)
-    };
+    const handleShowCompartir = () => setShowCompartir(true);
+
+    const [showAbandonarHogar, setShowAbandonarHogar] = useState(false);
+    const handleCloseAbandonarHogar = () => setShowAbandonarHogar(false);
+    const handleShowAbandonarHogar = () => setShowAbandonarHogar(true);
+
+
 
     const InviteHogar = () => {
         var requestOptions = {
@@ -113,12 +117,22 @@ function Hogar(){
     }, [])
 
     function handleDejarCompartir(id){
+        console.log(id)
         var requestOptions = {
             method: 'DELETE',
             headers: { 'Authorization' : sessionStorage.getItem("token") }
         };
         fetch(process.env.REACT_APP_BASE_URL + "compartidos/" + id, requestOptions).then
         (response => {handleClose()})
+    }
+
+    function abandonarHogar(){
+        var requestOptions = {
+            method: 'DELETE',
+            headers: { 'Authorization' : sessionStorage.getItem("token") }
+        };
+        fetch(process.env.REACT_APP_BASE_URL + "compartidos/" + hogar.idCompartido , requestOptions).then
+        (response => {window.location.replace("/")})
     }
 
     if(!loaded){
@@ -165,13 +179,30 @@ function Hogar(){
                         </Container>
                     </Modal.Body>
             </Modal>
+            <Modal show={showAbandonarHogar} onHide={handleCloseAbandonarHogar}>
+                    <Modal.Header closeButton>
+                        <Modal.Title>¿Estas seguro que quiere dejar el hogar?</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>
+                        Esto será de manera permanente y no podrás volver atras.
+                    </Modal.Body>
+                    <Modal.Footer>
+                        <Button variant="primary" onClick={handleCloseAbandonarHogar}>Cancelar</Button>
+                        <Button variant="danger" onClick={abandonarHogar}>Aceptar</Button>
+        </Modal.Footer>
+            </Modal>
             <br/>
             <Container>
                 <Row className="justify-content-md-center">
-                    <Col xs lg="2"></Col>
+                    <Col xs lg="4"></Col>
                     <Col md="auto"><h1>{hogar.nombre}</h1></Col>
-                    <Col xs lg="2"><Button hidden={!hogar.editable} onClick={() => {window.location.replace("/edicionHogar/" + hogar.id)}}>Editar</Button></Col>
-                    <Col xs lg="2"><Button hidden={!hogar.editable} onClick={handleShow}>Compartidos</Button></Col>
+                    <Col xs lg="2">
+                        {hogar.idCompartido === -1 &&
+                            <Button onClick={() => {window.location.replace("/edicionHogar/" + hogar.id)}}>Editar</Button>}
+                        {hogar.idCompartido !== -1 &&
+                            <Button variant={"danger"} onClick={handleShowAbandonarHogar}>Abandonar hogar</Button>}
+                    </Col>
+                    <Col xs lg="2"><Button hidden={hogar.idCompartido !== -1} onClick={handleShow}>Compartidos</Button></Col>
                 </Row>
             </Container>
                 <br/>

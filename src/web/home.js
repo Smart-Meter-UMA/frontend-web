@@ -56,30 +56,6 @@ function Home() {
         return(
             <>
                 Home
-                <a href={'/registro/hogar'}>Registro de un hogar</a>
-                <Button onClick={handleShow}>Ver invitaciones</Button>
-                <Modal show={show} onHide={handleClose} size="lg">
-                    <Modal.Header closeButton>
-                        <Modal.Title>Invitaciones</Modal.Title>
-                    </Modal.Header>
-                    <Modal.Body>
-                        <Container>
-                            {!hayInvitaciones && 
-                                <h5>No tienes invitaciones!</h5>
-                            }
-                            {hayInvitaciones &&
-                               invitaciones.map((invitacion) => (
-                                   <Row>
-                                       <Col sm={3}>{invitacion.ofertante.email}</Col>
-                                       <Col sm={3}>{invitacion.hogarInvitado.nombre}</Col>
-                                       <Col sm={3}><Button onClick={() => {aceptarInvitacion(invitacion.id, invitacion.hogarInvitado)}}>Aceptar</Button>{' '}</Col>
-                                       <Col sm={3}><Button variant="danger" onClick={() => {rechazarInvitacion(invitacion.id, invitacion.hogarInvitado)}}>Denegar</Button>{' '}</Col>
-                                   </Row>
-                               ))
-                            }
-                        </Container>
-                    </Modal.Body>
-                </Modal>
             </>
         )
     }
