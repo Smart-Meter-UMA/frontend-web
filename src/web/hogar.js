@@ -67,6 +67,11 @@ function Hogar(){
     const [valoresMinimo,setValoresMinimo] = useState(null);
     const [valoresMaximo,setValoresMaximo] = useState(null);
 
+    const [primerDia,setPrimerDia] = useState(null);
+    const [segundoDia,setSegundoDia] = useState(null);
+
+    const [primerDiaDatos, setPrimerDiaDatos] = useState([]);
+    const [segundoDiaDatos, setSegundoDiaDatos] = useState([]);
 
 
     const InviteHogar = () => {
@@ -172,16 +177,24 @@ function Hogar(){
         let filtro = ""
         if(filtrarFechas){
             if(fechaDesde !== null){
-                filtro += "&minDate="+new Date(fechaDesde).toLocaleDateString()+"T"+new Date(fechaDesde).toLocaleTimeString()+"Z"
+                filtro += "&minDate="+new Date(fechaDesde).toJSON()
             }
             if(fechaHasta !== null){
-                filtro += "&maxDate="+new Date(fechaHasta).toLocaleDateString()+"T"+new Date(fechaHasta).toLocaleTimeString()+"Z"
+                filtro += "&maxDate="+new Date(fechaHasta).toJSON()
             }
             if(fechaDesde === null && fechaHasta === null){
                 filtro += "&minDate="+minFechaDefault
             }
         }else{
             filtro += "&minDate="+minFechaDefault
+        }
+        if(filtrarDatos){
+            if(valoresMinimo !== null){
+                filtro += "&minData="+valoresMinimo
+            }
+            if(fechaHasta !== null){
+                filtro += "&maxData="+valoresMaximo
+            }
         }
         fetch(process.env.REACT_APP_BASE_URL + "dispositivos/" + radioValue + "/medidas?orderBy=fecha" + filtro, requestOptions).then
         (response => response.json()).then
@@ -205,6 +218,48 @@ function Hogar(){
         setValoresMaximo(null);
         setFiltrarFechas(false);
         setFiltrarValores(false);
+    }
+
+    function comparacionDias(){
+        var requestOptions = {
+            method: 'GET',
+            headers: { 'Authorization' : sessionStorage.getItem("token") }
+        };
+        if(primerDia !== null){
+            let day = new Date(primerDia)
+            let fechaMinima = new Date(day.getFullYear(), day.getMonth(),day.getDate(), 2, 0, 0).toJSON()
+            let fechaMaxima = new Date(day.getFullYear(), day.getMonth(),day.getDate(),25,59,59).toJSON()
+            fetch(process.env.REACT_APP_BASE_URL + "dispositivos/" + radioValue + "/medidas?orderBy=fecha&minDate="+fechaMinima+"&maxDate="+fechaMaxima, requestOptions).then
+            (response => response.json()).then
+            ((data) =>{
+                let aux = []
+                if(data.length !== 0){
+                    data.map((dato) => {
+                        let fecha = new Date(dato.fecha)
+                        aux.push([fecha.toLocaleDateString()+" "+fecha.toLocaleTimeString(),dato.kw])
+                    })
+                }
+                setPrimerDiaDatos(aux)
+            })
+        }
+        if(segundoDia !== null){
+            let day = new Date(segundoDia)
+            let fechaMinima = new Date(day.getFullYear(), day.getMonth(),day.getDate(), 2, 0, 0).toJSON()
+            let fechaMaxima = new Date(day.getFullYear(), day.getMonth(),day.getDate(),25,59,59).toJSON()
+            fetch(process.env.REACT_APP_BASE_URL + "dispositivos/" + radioValue + "/medidas?orderBy=fecha&minDate="+fechaMinima+"&maxDate="+fechaMaxima, requestOptions).then
+            (response => response.json()).then
+            ((data) =>{
+                let aux = []
+                if(data.length !== 0){
+                    data.map((dato) => {
+                        let fecha = new Date(dato.fecha)
+                        aux.push([fecha.toLocaleDateString()+" "+fecha.toLocaleTimeString(),dato.kw])
+                    })
+                }
+                setSegundoDiaDatos(aux)
+            })
+        } 
+
     }
 
     if(!loadedDatos && !loadedEstadistica){
@@ -368,7 +423,8 @@ function Hogar(){
                                                     <Col><Row><input type={"datetime-local"} defaultValue={fechaHasta} onChange={(e) =>{setFechaHasta(e.target.value)}}/></Row></Col>
                                                 </Row>    
                                             </Col>
-                                            <Col><Row><Button onClick={limpiarDatos}>Limpiar</Button></Row></Col>
+                                            <Col sm={1}></Col>
+                                            <Col sm={1}><Row><Button onClick={limpiarDatos}>Limpiar</Button></Row></Col>
                                         </Row>
                                         <br/>
                                         <Row>
@@ -385,7 +441,8 @@ function Hogar(){
                                                     <Col><Row><input type={"number"}  onChange={(e) =>{setValoresMaximo(e.target.value)}}/></Row></Col>
                                                 </Row>    
                                             </Col>
-                                            <Col><Button onClick={filtrarDatos}>Filtrar</Button></Col>
+                                            <Col sm={1}></Col>
+                                            <Col sm={1}><Row><Button onClick={filtrarDatos}>Filtrar</Button></Row></Col>
                                         </Row>
                                         <Row>
                                             <Col sm={1}></Col>
@@ -398,7 +455,32 @@ function Hogar(){
                                     Profile
                                 </Tab>
                                 <Tab eventKey="predicciones" title="Prediciones">
-                                    Contact
+                                    Predicciones
+                                </Tab>
+                                <Tab eventKey="compararDias" title="Comparar días">
+                                    <Container>
+                                        <Row>
+                                            <Col sm={4}>
+                                                <Row>
+                                                    <Col><Row>1º Día</Row></Col>
+                                                    <Col><Row><input type={"date"} onChange={(e) =>{setPrimerDia(e.target.value)}}/></Row></Col>
+                                                </Row>    
+                                            </Col>
+                                            <Col sm={1}></Col>
+                                            <Col sm={4}>
+                                                <Row>
+                                                    <Col><Row>2º Día</Row></Col>
+                                                    <Col><Row><input type={"date"} onChange={(e) =>{setSegundoDia(e.target.value)}}/></Row></Col>
+                                                </Row>    
+                                            </Col>
+                                            <Col sm={1}></Col>
+                                            <Col sm={1}><Row><Button onClick={comparacionDias}>Buscar</Button></Row></Col>
+                                        </Row>
+                                        <Row>
+                                            <Col><AnyChart id="lineChart1Dia" type="line" data={primerDiaDatos} width={500} height={250} /></Col>
+                                            <Col><AnyChart id="lineChart2Dia" type="line" data={segundoDiaDatos} width={500} height={250} /></Col>
+                                        </Row>
+                                    </Container>
                                 </Tab>
                             </Tabs>
                         </Row>
