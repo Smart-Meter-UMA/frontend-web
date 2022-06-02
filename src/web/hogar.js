@@ -13,11 +13,16 @@ import SideBar from "../components/SideBar.js";
 
 function Hogar(){
     let {id} = useParams();
+
+    const minFechaDefault = new Date(new Date().getTime() - 24*60*60*1000).toJSON()
+    
     const [hogar, setHogar] = useState(null)
     const [dispositivos, setDispositivos] = useState(null)
-    const [loaded, isLoaded] = useState(false)
+    const [loadedEstadistica, isEstadisticaLoaded] = useState(false)
+    const [loadedDatos, isDatosLoaded] = useState(false)
     const [radioValue, setRadioValue] = useState('1');
     const [hayDispositivos, setHayDispositivos] = useState(false);
+    const [datos, setDatos] = useState([]);
 
     const [compartidos, setCompartidos] = useState([]);
     const [hayCompartidos, setHayCompartidos] = useState(false)
@@ -53,6 +58,14 @@ function Hogar(){
     const [showAbandonarHogar, setShowAbandonarHogar] = useState(false);
     const handleCloseAbandonarHogar = () => setShowAbandonarHogar(false);
     const handleShowAbandonarHogar = () => setShowAbandonarHogar(true);
+
+    //Variables para filtrar
+    const [filtrarFechas,setFiltrarFechas] = useState(false);
+    const [fechaDesde,setFechaDesde] = useState(null);
+    const [fechaHasta,setFechaHasta] = useState(null);
+    const [filtrarValores,setFiltrarValores] = useState(false);
+    const [valoresMinimo,setValoresMinimo] = useState(null);
+    const [valoresMaximo,setValoresMaximo] = useState(null);
 
 
 
@@ -108,10 +121,24 @@ function Hogar(){
                 (response => response.json()).then
                 ((data) =>{
                     setEstadisticas(data.estadisticas)
-                    isLoaded(true)
+                    isEstadisticaLoaded(true)
+                })
+                fetch(process.env.REACT_APP_BASE_URL + "dispositivos/" + data.dispositivos[0].id + "/medidas?orderBy=fecha&minDate=" + minFechaDefault, requestOptions).then
+                (response => response.json()).then
+                ((data) =>{
+                    let aux = []
+                    if(data.length !== 0){
+                        data.map((dato) => {
+                            let fecha = new Date(dato.fecha)
+                            aux.push([fecha.toLocaleDateString()+" "+fecha.toLocaleTimeString(),dato.kw])
+                        })
+                    }
+                    setDatos(aux)
+                    isDatosLoaded(true)
                 })
             }else{
-                isLoaded(true)
+                isDatosLoaded(true)
+                isEstadisticaLoaded(true)
             }
         })
     }, [])
@@ -135,11 +162,56 @@ function Hogar(){
         (response => {window.location.replace("/")})
     }
 
-    if(!loaded){
+    function filtrarDatos(){
+        isDatosLoaded(false)
+        var requestOptions = {
+            method: 'GET',
+            headers: { 'Authorization' : sessionStorage.getItem("token") }
+
+        };
+        let filtro = ""
+        if(filtrarFechas){
+            if(fechaDesde !== null){
+                filtro += "&minDate="+new Date(fechaDesde).toLocaleDateString()+"T"+new Date(fechaDesde).toLocaleTimeString()+"Z"
+            }
+            if(fechaHasta !== null){
+                filtro += "&maxDate="+new Date(fechaHasta).toLocaleDateString()+"T"+new Date(fechaHasta).toLocaleTimeString()+"Z"
+            }
+            if(fechaDesde === null && fechaHasta === null){
+                filtro += "&minDate="+minFechaDefault
+            }
+        }else{
+            filtro += "&minDate="+minFechaDefault
+        }
+        fetch(process.env.REACT_APP_BASE_URL + "dispositivos/" + radioValue + "/medidas?orderBy=fecha" + filtro, requestOptions).then
+        (response => response.json()).then
+        ((data) =>{
+            let aux = []
+            if(data.length !== 0){
+                data.map((dato) => {
+                    let fecha = new Date(dato.fecha)
+                    aux.push([fecha.toLocaleDateString()+" "+fecha.toLocaleTimeString(),dato.kw])
+                })
+            }
+            setDatos(aux)
+            isDatosLoaded(true)
+        })
+    }
+
+    function limpiarDatos(e){
+        setFechaDesde(null);
+        setFechaHasta(null);
+        setValoresMinimo(null);
+        setValoresMaximo(null);
+        setFiltrarFechas(false);
+        setFiltrarValores(false);
+    }
+
+    if(!loadedDatos && !loadedEstadistica){
         return <Loading />
     }else{
         return(
-            <>
+        <>
             <ToastContainer />
             <Modal show={show} onHide={handleClose}>
                     <Modal.Header closeButton>
@@ -189,7 +261,7 @@ function Hogar(){
                     <Modal.Footer>
                         <Button variant="primary" onClick={handleCloseAbandonarHogar}>Cancelar</Button>
                         <Button variant="danger" onClick={abandonarHogar}>Aceptar</Button>
-        </Modal.Footer>
+                    </Modal.Footer>
             </Modal>
             <br/>
             <Container>
@@ -204,79 +276,64 @@ function Hogar(){
                     </Col>
                     <Col xs lg="2"><Button hidden={hogar.idCompartido !== -1} onClick={handleShow}>Compartidos</Button></Col>
                 </Row>
-            </Container>
                 <br/>
-            <Row>
-                <Col>
-                {!hayDispositivos &&
-                <h3>No hay dispositivos</h3>
-                }
-                {hayDispositivos &&
-                <ButtonGroup>
-                {dispositivos.map((dispositivo) => (
-                    <ToggleButton
-                    key={dispositivo.id}
-                    id={`radio-${dispositivo.id}`}
-                    type="radio"
-                    variant="outline-primary"
-                    name="radio"
-                    checked={radioValue === dispositivo.id}
-                    onChange={() => {handleChangeDispositivo(id)}}
-                    >
-                        {dispositivo.nombre}
-                    </ToggleButton>
-                ))}
-                </ButtonGroup> 
-                }
-                </Col>
-            </Row>
-            <br/>
-            {estadisticas !== null && (
+                <Row className="justify-content-md-center">
+                    <Col>
+                        {!hayDispositivos &&<h3>No hay dispositivos</h3>}
+                        {hayDispositivos &&
+                            <ButtonGroup>
+                                {dispositivos.map((dispositivo) => (
+                                    <ToggleButton
+                                    key={dispositivo.id}
+                                    id={`radio-${dispositivo.id}`}
+                                    type="radio"
+                                    variant="outline-primary"
+                                    name="radio"
+                                    checked={radioValue === dispositivo.id}
+                                    onChange={() => {handleChangeDispositivo(id)}}
+                                    >{dispositivo.nombre}</ToggleButton>
+                                ))}
+                            </ButtonGroup> 
+                        }
+                    </Col>
+                </Row>
+                <br/>
+                {estadisticas !== null && (
                 <>
                 <Row>
                     <Col></Col>
-                    <Col>
-                        Consumido de hoy: 
-                    </Col>
-                    <Col>
-                        Consumido de este mes:
-                    </Col>
-                    <Col></Col>
-                </Row>
-                <Row>
-                    <Col></Col>
-                    <Col></Col>
-                    <Col>{estadisticas.consumidoHoy} KW</Col>
-                    <Col></Col>
-                    <Col>{estadisticas.consumidoMes} KW</Col>
+                    <Col><Row>Consumido Hoy:</Row></Col>
+                    <Col>{estadisticas.consumidoHoy} KWh</Col>
+                    <Col><Row>Consumido Mes:</Row></Col>
+                    <Col>{estadisticas.consumidoMes} KWh</Col>
                     <Col></Col>
                 </Row>
                 <Row>
                     <Col></Col>
                     <Col><Row>Medida diaria:</Row></Col>
-                    <Col>{estadisticas.mediaKWHDiaria} KW</Col>
+                    <Col>{estadisticas.mediaKWHDiaria} KWh</Col>
                     <Col><Row>Medida mensual:</Row></Col>
-                    <Col>{estadisticas.mediaKWHMensual} KW</Col>
+                    <Col>{estadisticas.mediaKWHMensual} KWh</Col>
                     <Col></Col>
                 </Row>
                 <Row>
                     <Col></Col>
                     <Col><Row>Mínimo diario:</Row></Col>
-                    <Col>{estadisticas.minKWHDiario} KW</Col>
+                    <Col>{estadisticas.minKWHDiario} KWh</Col>
                     <Col><Row>Mínimo mensual:</Row></Col>
-                    <Col>{estadisticas.minKWHMensual} KW</Col>
+                    <Col>{estadisticas.minKWHMensual} KWh</Col>
                     <Col></Col>
                 </Row>
                 <Row>
                     <Col></Col>
                     <Col><Row>Máximo diario:</Row></Col>
-                    <Col>{estadisticas.maxKWHDiario} KW</Col>
+                    <Col>{estadisticas.maxKWHDiario} KWh</Col>
                     <Col><Row>Limite máximo mensual:</Row></Col>
-                    <Col>{estadisticas.maxKWHMensual} KW</Col>
+                    <Col>{estadisticas.maxKWHMensual} KWh</Col>
                     <Col></Col>
                 </Row>
                 <Row>
-                    <Col sm={2}></Col>
+                    <Col sm={1}></Col>
                     <Col>
                         <Row>
                             <Tabs
@@ -289,53 +346,51 @@ function Hogar(){
                                     <Container>
                                         <Row>
                                             <Col sm={1}><Row>Filtrar por:</Row></Col>
-                                            <Col sm={3}><Row><label><input type="checkbox"/> Tramos de tiempo</label></Row></Col>
-                                            <Col sm={5}><Row><label><input type="checkbox"/> Valores máximos y mínimos de consumo</label></Row></Col>
+                                            <Col sm={3}><Row><label><input type="checkbox" onClick={(e) => {setFiltrarFechas(!filtrarFechas)}}/> Tramos de tiempo</label></Row></Col>
+                                            <Col sm={5}><Row><label><input type="checkbox" onClick={(e) => {setFiltrarValores(!filtrarValores)}}/> Valores máximos y mínimos de consumo</label></Row></Col>
                                             <Col></Col>
                                             <Col></Col>
                                             <Col></Col>
                                             <Col></Col>
                                         </Row>
+                                        <br/>
                                         <Row>
-                                            <Col sm={5}>
+                                            <Col sm={4}>
                                                 <Row>
                                                     <Col><Row>Fecha inicio:</Row></Col>
-                                                    <Col><Row><input type={"datetime-local"}/></Row></Col>
+                                                    <Col><Row><input type={"datetime-local"} defaultValue={fechaDesde} onChange={(e) =>{setFechaDesde(e.target.value)}}/></Row></Col>
                                                 </Row>    
                                             </Col>
-                                            <Col></Col>
-                                            <Col sm={5}>
+                                            <Col sm={1}></Col>
+                                            <Col sm={4}>
                                                 <Row>
                                                     <Col><Row>Fecha fin:</Row></Col>
-                                                    <Col><Row><input type={"datetime-local"}/></Row></Col>
+                                                    <Col><Row><input type={"datetime-local"} defaultValue={fechaHasta} onChange={(e) =>{setFechaHasta(e.target.value)}}/></Row></Col>
                                                 </Row>    
                                             </Col>
+                                            <Col><Row><Button onClick={limpiarDatos}>Limpiar</Button></Row></Col>
                                         </Row>
                                         <br/>
                                         <Row>
                                             <Col sm={4}>
                                                 <Row>
                                                     <Col><Row>Valor mínimo:</Row></Col>
-                                                    <Col><Row><input type={"number"}/></Row></Col>
+                                                    <Col><Row><input type={"number"} defaultValue={valoresMinimo} onChange={(e) =>{setValoresMinimo(e.target.value)}}/></Row></Col>
                                                 </Row>    
                                             </Col>
-                                            <Col></Col>
-                                            <Col sm={5}>
+                                            <Col sm={1}></Col>
+                                            <Col sm={4}>
                                                 <Row>
                                                     <Col><Row>Valor máximo:</Row></Col>
-                                                    <Col><Row><input type={"number"}/></Row></Col>
+                                                    <Col><Row><input type={"number"}  onChange={(e) =>{setValoresMaximo(e.target.value)}}/></Row></Col>
                                                 </Row>    
                                             </Col>
+                                            <Col><Button onClick={filtrarDatos}>Filtrar</Button></Col>
                                         </Row>
                                         <Row>
-                                            <AnyChart
-                                                id="lineChart"
-                                                width={800}
-                                                height={600}
-                                                type="line"
-                                                data={[[2,3],[3,5]]}
-                                                title="KW"
-                                            />
+                                            <Col sm={1}></Col>
+                                            <Col><AnyChart id="lineChart" width={1200} height={600} type="line" data={datos} title="KW"/></Col>
+                                            <Col sm={1}></Col>
                                         </Row>
                                     </Container>
                                 </Tab>
@@ -348,14 +403,12 @@ function Hogar(){
                             </Tabs>
                         </Row>
                     </Col>
-                    <Col sm={2}></Col>
+                    <Col sm={1}></Col>
                 </Row>
                 </>
-            )}
-
-                
-                
-            </>
+                )}
+            </Container>        
+        </>
         );
     }
     
