@@ -15,6 +15,7 @@ function Hogar(){
     let {id} = useParams();
 
     const minFechaDefault = new Date(new Date().getTime() - 24*60*60*1000).toJSON()
+    const maxFechaDefault = new Date().toJSON()
     
     const [hogar, setHogar] = useState(null)
     const [dispositivos, setDispositivos] = useState(null)
@@ -59,6 +60,10 @@ function Hogar(){
     const handleCloseAbandonarHogar = () => setShowAbandonarHogar(false);
     const handleShowAbandonarHogar = () => setShowAbandonarHogar(true);
 
+    const [showCompararDias, setShowCompararDias] = useState(0);
+    const handleCloseCompararDias = () => setShowCompararDias(0);
+    const handleShowCompararDias = () => setShowCompararDias(showCompararDias + 1);
+
     //Variables para filtrar
     const [filtrarFechas,setFiltrarFechas] = useState(false);
     const [fechaDesde,setFechaDesde] = useState(null);
@@ -71,7 +76,9 @@ function Hogar(){
     const [segundoDia,setSegundoDia] = useState(null);
 
     const [primerDiaDatos, setPrimerDiaDatos] = useState([]);
+    const [primerDiaTitle, setPrimerDiaTitle] = useState(""); 
     const [segundoDiaDatos, setSegundoDiaDatos] = useState([]);
+    const [segundoDiaTitle, setSegundoDiaTitle] = useState(""); 
 
 
     const InviteHogar = () => {
@@ -128,7 +135,7 @@ function Hogar(){
                     setEstadisticas(data.estadisticas)
                     isEstadisticaLoaded(true)
                 })
-                fetch(process.env.REACT_APP_BASE_URL + "dispositivos/" + data.dispositivos[0].id + "/medidas?orderBy=fecha&minDate=" + minFechaDefault, requestOptions).then
+                fetch(process.env.REACT_APP_BASE_URL + "dispositivos/" + data.dispositivos[0].id + "/medidas?orderBy=fecha&minDate=" + minFechaDefault+"&maxDate="+maxFechaDefault, requestOptions).then
                 (response => response.json()).then
                 ((data) =>{
                     let aux = []
@@ -227,6 +234,7 @@ function Hogar(){
         };
         if(primerDia !== null){
             let day = new Date(primerDia)
+            setPrimerDiaTitle(day.toDateString())
             let fechaMinima = new Date(day.getFullYear(), day.getMonth(),day.getDate(), 2, 0, 0).toJSON()
             let fechaMaxima = new Date(day.getFullYear(), day.getMonth(),day.getDate(),25,59,59).toJSON()
             fetch(process.env.REACT_APP_BASE_URL + "dispositivos/" + radioValue + "/medidas?orderBy=fecha&minDate="+fechaMinima+"&maxDate="+fechaMaxima, requestOptions).then
@@ -236,14 +244,18 @@ function Hogar(){
                 if(data.length !== 0){
                     data.map((dato) => {
                         let fecha = new Date(dato.fecha)
-                        aux.push([fecha.toLocaleDateString()+" "+fecha.toLocaleTimeString(),dato.kw])
+                        aux.push({'x':fecha.toLocaleTimeString(),'value':dato.kw})
                     })
                 }
                 setPrimerDiaDatos(aux)
+                handleShowCompararDias()
             })
+        }else{
+            handleShowCompararDias()
         }
         if(segundoDia !== null){
             let day = new Date(segundoDia)
+            setSegundoDiaTitle(day.toDateString())
             let fechaMinima = new Date(day.getFullYear(), day.getMonth(),day.getDate(), 2, 0, 0).toJSON()
             let fechaMaxima = new Date(day.getFullYear(), day.getMonth(),day.getDate(),25,59,59).toJSON()
             fetch(process.env.REACT_APP_BASE_URL + "dispositivos/" + radioValue + "/medidas?orderBy=fecha&minDate="+fechaMinima+"&maxDate="+fechaMaxima, requestOptions).then
@@ -253,12 +265,15 @@ function Hogar(){
                 if(data.length !== 0){
                     data.map((dato) => {
                         let fecha = new Date(dato.fecha)
-                        aux.push([fecha.toLocaleDateString()+" "+fecha.toLocaleTimeString(),dato.kw])
+                        aux.push({'x':fecha.toLocaleTimeString(),'value':dato.kw})
                     })
                 }
                 setSegundoDiaDatos(aux)
+                handleShowCompararDias()
             })
-        } 
+        }else{
+            handleShowCompararDias()
+        }
 
     }
 
@@ -290,6 +305,17 @@ function Hogar(){
                                     </Row>
                                ))
                             }
+                        </Container>
+                    </Modal.Body>
+            </Modal>
+            <Modal show={showCompararDias} onHide={handleCloseCompararDias} size="xl">
+                    <Modal.Header closeButton><h3>Comparando días</h3></Modal.Header>
+                    <Modal.Body>
+                        <Container>
+                            <Row>
+                                <Col><AnyChart id="lineChartPrimerDia" type="line" data={primerDiaDatos} width={500} height={250} title={primerDiaTitle}/></Col>
+                                <Col><AnyChart id="lineChartSegundoDia" type="line" data={segundoDiaDatos} width={500} height={250} title={segundoDiaTitle}/></Col>
+                            </Row>
                         </Container>
                     </Modal.Body>
             </Modal>
@@ -365,26 +391,30 @@ function Hogar(){
                 </Row>
                 <Row>
                     <Col></Col>
-                    <Col><Row>Medida diaria:</Row></Col>
+                    <Col><Row>Media diaria:</Row></Col>
                     <Col>{estadisticas.mediaKWHDiaria} KWh</Col>
-                    <Col><Row>Medida mensual:</Row></Col>
+                    <Col><Row>Media mensual:</Row></Col>
                     <Col>{estadisticas.mediaKWHMensual} KWh</Col>
                     <Col></Col>
                 </Row>
                 <Row>
                     <Col></Col>
                     <Col><Row>Mínimo diario:</Row></Col>
-                    <Col>{estadisticas.minKWHDiario} KWh</Col>
+                    {estadisticas.minKWHDiario === -1 && <Col>-</Col>}
+                    {estadisticas.minKWHDiario !== -1 && <Col>{estadisticas.minKWHDiario} KWh</Col>}
                     <Col><Row>Mínimo mensual:</Row></Col>
-                    <Col>{estadisticas.minKWHMensual} KWh</Col>
+                    {estadisticas.minKWHMensual === -1 && <Col>-</Col>}
+                    {estadisticas.minKWHMensual !== -1 && <Col>{estadisticas.minKWHMensual} KWh</Col>}
                     <Col></Col>
                 </Row>
                 <Row>
                     <Col></Col>
                     <Col><Row>Máximo diario:</Row></Col>
-                    <Col>{estadisticas.maxKWHDiario} KWh</Col>
-                    <Col><Row>Limite máximo mensual:</Row></Col>
-                    <Col>{estadisticas.maxKWHMensual} KWh</Col>
+                    {estadisticas.maxKWHDiario === -1 && <Col>-</Col>}
+                    {estadisticas.minKWHDiario !== -1 && <Col>{estadisticas.maxKWHDiario} KWh</Col>}
+                    <Col><Row>Máximo mensual:</Row></Col>
+                    {estadisticas.maxKWHMensual === -1 && <Col>-</Col>}
+                    {estadisticas.maxKWHMensual !== -1 && <Col>{estadisticas.maxKWHMensual} KWh</Col>}
                     <Col></Col>
                 </Row>
                 <Row>
@@ -475,10 +505,6 @@ function Hogar(){
                                             </Col>
                                             <Col sm={1}></Col>
                                             <Col sm={1}><Row><Button onClick={comparacionDias}>Buscar</Button></Row></Col>
-                                        </Row>
-                                        <Row>
-                                            <Col><AnyChart id="lineChart1Dia" type="line" data={primerDiaDatos} width={500} height={250} /></Col>
-                                            <Col><AnyChart id="lineChart2Dia" type="line" data={segundoDiaDatos} width={500} height={250} /></Col>
                                         </Row>
                                     </Container>
                                 </Tab>
