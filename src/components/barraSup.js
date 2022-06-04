@@ -55,8 +55,14 @@ function rechazarInvitacion(id, hogar){
         method: 'POST',
         headers: { 'Content-Type': 'application/json','Authorization' : sessionStorage.getItem("token") }
       };
-      fetch(process.env.REACT_APP_BASE_URL+"login/",requestOptions).then(response => response.json()).then
-      ((data) => {
+      fetch(process.env.REACT_APP_BASE_URL+"login/",requestOptions).then(response => { 
+        if(response.status === 401){
+          sessionStorage.removeItem("token")
+          window.location.replace("/login");
+        }else{
+          return response.json()
+        }
+      }).then((data) => {
         setCurrentUser(data)
       }, (error) => {
         sessionStorage.removeItem("token")

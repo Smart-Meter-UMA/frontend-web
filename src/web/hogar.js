@@ -66,14 +66,14 @@ function Hogar(){
 
     //Variables para filtrar
     const [filtrarFechas,setFiltrarFechas] = useState(false);
-    const [fechaDesde,setFechaDesde] = useState(null);
-    const [fechaHasta,setFechaHasta] = useState(null);
+    const [fechaDesde,setFechaDesde] = useState("");
+    const [fechaHasta,setFechaHasta] = useState("");
     const [filtrarValores,setFiltrarValores] = useState(false);
-    const [valoresMinimo,setValoresMinimo] = useState(null);
-    const [valoresMaximo,setValoresMaximo] = useState(null);
+    const [valoresMinimo,setValoresMinimo] = useState("");
+    const [valoresMaximo,setValoresMaximo] = useState("");
 
-    const [primerDia,setPrimerDia] = useState(null);
-    const [segundoDia,setSegundoDia] = useState(null);
+    const [primerDia,setPrimerDia] = useState("");
+    const [segundoDia,setSegundoDia] = useState("");
 
     const [primerDiaDatos, setPrimerDiaDatos] = useState([]);
     const [primerDiaTitle, setPrimerDiaTitle] = useState(""); 
@@ -182,7 +182,7 @@ function Hogar(){
 
         };
         let filtro = ""
-        if(filtrarFechas){
+        if(filtrarFechas){ 
             if(fechaDesde !== null){
                 filtro += "&minDate="+new Date(fechaDesde).toJSON()
             }
@@ -193,9 +193,9 @@ function Hogar(){
                 filtro += "&minDate="+minFechaDefault
             }
         }else{
-            filtro += "&minDate="+minFechaDefault
+            filtro += "&minDate="+minFechaDefault+"&maxDate="+maxFechaDefault
         }
-        if(filtrarDatos){
+        if(filtrarValores){
             if(valoresMinimo !== null){
                 filtro += "&minData="+valoresMinimo
             }
@@ -207,7 +207,9 @@ function Hogar(){
         (response => response.json()).then
         ((data) =>{
             let aux = []
+            console.log(data)
             if(data.length !== 0){
+                
                 data.map((dato) => {
                     let fecha = new Date(dato.fecha)
                     aux.push([fecha.toLocaleDateString()+" "+fecha.toLocaleTimeString(),dato.kw])
@@ -218,13 +220,18 @@ function Hogar(){
         })
     }
 
-    function limpiarDatos(e){
-        setFechaDesde(null);
-        setFechaHasta(null);
-        setValoresMinimo(null);
-        setValoresMaximo(null);
+    function limpiarDatosFiltro(e){
+        setFechaDesde("");
+        setFechaHasta("");
+        setValoresMinimo("");
+        setValoresMaximo("");
         setFiltrarFechas(false);
         setFiltrarValores(false);
+    }
+
+    function limpiarDatosCompararDias(e){
+        setPrimerDia("")
+        setSegundoDia("")
     }
 
     function comparacionDias(){
@@ -431,8 +438,8 @@ function Hogar(){
                                     <Container>
                                         <Row>
                                             <Col sm={1}><Row>Filtrar por:</Row></Col>
-                                            <Col sm={3}><Row><label><input type="checkbox" onClick={(e) => {setFiltrarFechas(!filtrarFechas)}}/> Tramos de tiempo</label></Row></Col>
-                                            <Col sm={5}><Row><label><input type="checkbox" onClick={(e) => {setFiltrarValores(!filtrarValores)}}/> Valores máximos y mínimos de consumo</label></Row></Col>
+                                            <Col sm={3}><Row><label><input type="checkbox" checked={filtrarFechas} onClick={(e) => {setFiltrarFechas(!filtrarFechas)}}/> Tramos de tiempo</label></Row></Col>
+                                            <Col sm={5}><Row><label><input type="checkbox" checked={filtrarValores} onClick={(e) => {setFiltrarValores(!filtrarValores)}}/> Valores máximos y mínimos de consumo</label></Row></Col>
                                             <Col></Col>
                                             <Col></Col>
                                             <Col></Col>
@@ -443,37 +450,38 @@ function Hogar(){
                                             <Col sm={4}>
                                                 <Row>
                                                     <Col><Row>Fecha inicio:</Row></Col>
-                                                    <Col><Row><input type={"datetime-local"} defaultValue={fechaDesde} onChange={(e) =>{setFechaDesde(e.target.value)}}/></Row></Col>
+                                                    <Col><Row><input type={"datetime-local"} value={fechaDesde} onChange={(e) =>{setFechaDesde(e.target.value)}}/></Row></Col>
                                                 </Row>    
                                             </Col>
                                             <Col sm={1}></Col>
                                             <Col sm={4}>
                                                 <Row>
                                                     <Col><Row>Fecha fin:</Row></Col>
-                                                    <Col><Row><input type={"datetime-local"} defaultValue={fechaHasta} onChange={(e) =>{setFechaHasta(e.target.value)}}/></Row></Col>
+                                                    <Col><Row><input type={"datetime-local"} value={fechaHasta} onChange={(e) =>{setFechaHasta(e.target.value)}}/></Row></Col>
                                                 </Row>    
                                             </Col>
                                             <Col sm={1}></Col>
-                                            <Col sm={1}><Row><Button onClick={limpiarDatos}>Limpiar</Button></Row></Col>
+                                            <Col sm={1}><Row><Button onClick={limpiarDatosFiltro}>Limpiar</Button></Row></Col>
                                         </Row>
                                         <br/>
                                         <Row>
                                             <Col sm={4}>
                                                 <Row>
                                                     <Col><Row>Valor mínimo:</Row></Col>
-                                                    <Col><Row><input type={"number"} defaultValue={valoresMinimo} onChange={(e) =>{setValoresMinimo(e.target.value)}}/></Row></Col>
+                                                    <Col><Row><input type={"number"} value={valoresMinimo} onChange={(e) =>{setValoresMinimo(e.target.value)}}/></Row></Col>
                                                 </Row>    
                                             </Col>
                                             <Col sm={1}></Col>
                                             <Col sm={4}>
                                                 <Row>
                                                     <Col><Row>Valor máximo:</Row></Col>
-                                                    <Col><Row><input type={"number"}  onChange={(e) =>{setValoresMaximo(e.target.value)}}/></Row></Col>
+                                                    <Col><Row><input type={"number"} value={valoresMaximo} onChange={(e) =>{setValoresMaximo(e.target.value)}}/></Row></Col>
                                                 </Row>    
                                             </Col>
                                             <Col sm={1}></Col>
                                             <Col sm={1}><Row><Button onClick={filtrarDatos}>Filtrar</Button></Row></Col>
                                         </Row>
+                                        <br/>
                                         <Row>
                                             <Col sm={1}></Col>
                                             <Col><AnyChart id="lineChart" width={1200} height={600} type="line" data={datos} title="KW"/></Col>
@@ -490,21 +498,23 @@ function Hogar(){
                                 <Tab eventKey="compararDias" title="Comparar días">
                                     <Container>
                                         <Row>
-                                            <Col sm={4}>
+                                            <Col sm={3}>
                                                 <Row>
                                                     <Col><Row>1º Día</Row></Col>
-                                                    <Col><Row><input type={"date"} onChange={(e) =>{setPrimerDia(e.target.value)}}/></Row></Col>
+                                                    <Col><Row><input type={"date"} value={primerDia} onChange={(e) =>{setPrimerDia(e.target.value)}}/></Row></Col>
                                                 </Row>    
                                             </Col>
                                             <Col sm={1}></Col>
-                                            <Col sm={4}>
+                                            <Col sm={3}>
                                                 <Row>
                                                     <Col><Row>2º Día</Row></Col>
-                                                    <Col><Row><input type={"date"} onChange={(e) =>{setSegundoDia(e.target.value)}}/></Row></Col>
+                                                    <Col><Row><input type={"date"} value={segundoDia} onChange={(e) =>{setSegundoDia(e.target.value)}}/></Row></Col>
                                                 </Row>    
                                             </Col>
                                             <Col sm={1}></Col>
                                             <Col sm={1}><Row><Button onClick={comparacionDias}>Buscar</Button></Row></Col>
+                                            <Col sm={1}></Col>
+                                            <Col sm={1}><Row><Button onClick={limpiarDatosCompararDias}>Limpiar</Button></Row></Col>
                                         </Row>
                                     </Container>
                                 </Tab>

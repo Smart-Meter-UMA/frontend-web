@@ -1,4 +1,4 @@
-import { Button, Col, Container, Modal, Row } from "react-bootstrap";
+import { Button, Card, Col, Container, Modal, Row } from "react-bootstrap";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import React, { useEffect, useState } from "react";
 import Loading from "../components/Loading";
@@ -13,7 +13,7 @@ function Login() {
     const handleShowModal = () => setShowModal(true);
 
     useEffect(() => {
-        if(sessionStorage.getItem('token') != null){
+        if(sessionStorage.getItem('token') !== null){
             window.location.replace("/")
         }else{
             isLoaded(true)
@@ -41,33 +41,32 @@ function Login() {
     }else{
         return (
             <>
-            <GoogleOAuthProvider clientId="724046535439-g4gdj010v7qdkpbcpu7qq9edjt61nbva.apps.googleusercontent.com">
-                <Modal show={showModal} onHide={handleCloseModal} backdrop="static" >
-                    <Modal.Header closeButton>
-                        <Modal.Title>Error al iniciar sesión</Modal.Title>
-                    </Modal.Header>
-                    <Modal.Body>Error al iniciar sesión con su cuenta de Google</Modal.Body>
-                    <Modal.Footer>
-                        <Button variant="primary" onClick={handleCloseModal}>De acuerdo</Button>
-                    </Modal.Footer>
-                </Modal>
-                <Container>
-                <br/><br/><br/>
-                <Row>
-                   <Col><h3>Iniciar sesión con Smart meter</h3></Col> 
-                </Row>
-                <br/><br/><br/>
-                <Row>
-                    <GoogleLogin 
-                        onSuccess={responseGoogleOnSuccess}
-                        onError={() => {
-                            console.log('Login Failed');
-                          }}
-                    />
-                </Row>
-                {error !== "" && <p>{error}</p>}
+                <GoogleOAuthProvider clientId="724046535439-g4gdj010v7qdkpbcpu7qq9edjt61nbva.apps.googleusercontent.com">
                 
-                </Container>
+                    <Modal show={showModal} onHide={handleCloseModal} backdrop="static" >
+                        <Modal.Header closeButton>
+                            <Modal.Title>Error al iniciar sesión</Modal.Title>
+                        </Modal.Header>
+                        <Modal.Body>Error al iniciar sesión con su cuenta de Google</Modal.Body>
+                        <Modal.Footer>
+                            <Button variant="primary" onClick={handleCloseModal}>De acuerdo</Button>
+                        </Modal.Footer>
+                    </Modal>
+
+                    <Container>
+                        <br/><br/><br/>
+                        <Row>
+                            <Col><h3>Iniciar sesión con Smart meter</h3></Col> 
+                        </Row>
+                        <br/><br/><br/>
+                        <Row>
+                            <Col></Col>
+                            <Col>
+                                <Card style={{ width: '30rem', height: '15rem' }}><br/><br/><br/><Card.Body><GoogleLogin onSuccess={responseGoogleOnSuccess} onError={handleShowModal} /></Card.Body></Card>
+                            </Col>
+                            <Col></Col>
+                        </Row>
+                    </Container>
                 </GoogleOAuthProvider>
             </>
         );

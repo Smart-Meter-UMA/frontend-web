@@ -12,7 +12,6 @@ import { GoogleOAuthProvider } from '@react-oauth/google';
 function App() {
   return (
     <div className="App">
-      <GoogleOAuthProvider clientId="860266555787-337c130jdi6jar97gkmomb1dq71sv02i.apps.googleusercontent.com">
       <BarraSup />
       <Routes>
         <Route path="/" element={<Home />}/>
@@ -22,7 +21,6 @@ function App() {
         <Route path="/hogar/:id" element={<Hogar />}/>
         <Route path="/edicionHogar/:id" element={<EdicionHogar />}/>
       </Routes>
-      </GoogleOAuthProvider>
     </div>
   );
 }
