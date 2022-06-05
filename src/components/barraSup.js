@@ -3,9 +3,10 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import logo from '../assets/logoSmartMeterNoFondo2.png';
 import { useEffect, useState } from "react";
 import Modal from 'react-bootstrap/Modal'
+import LoadingVentanaEmergente from "./LoadingVentanaEmergente";
 
 function BarraSup() {
-
+  const [loading, isLoading] = useState(false)
   const [currentUser, setCurrentUser] = useState(null);
   const [hogares, setHogares] = useState(null);
   const [show, setShow] = useState(false);
@@ -35,6 +36,7 @@ function BarraSup() {
         handleShow()
   })}
   function aceptarInvitacion(id, hogar){
+    isLoading(true)
     var requestOptions = {
         method: 'POST',
         headers: { 'Content-Type': 'application/json','Authorization' : sessionStorage.getItem("token")},
@@ -42,18 +44,19 @@ function BarraSup() {
     };
     fetch(process.env.REACT_APP_BASE_URL + "compartidos/", requestOptions).then
     (response => {
-        window.location.replace("/")
+      window.location.reload()
     })
 }
 
 function rechazarInvitacion(id, hogar){
+    isLoading(true)
     var requestOptions = {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json','Authorization' : sessionStorage.getItem("token")}
     };
     fetch(process.env.REACT_APP_BASE_URL + "invitacions/" + id, requestOptions).then
                 (response => {
-            window.location.replace("/")
+            window.location.reload()
         })
 }
   useEffect(() => {
@@ -109,9 +112,9 @@ function rechazarInvitacion(id, hogar){
     return (
       <>
         <Modal show={show} onHide={handleClose} size="lg">
-          <Modal.Header closeButton>
-              <Modal.Title>Invitaciones</Modal.Title>
-          </Modal.Header>
+          {loading && (<><br/><LoadingVentanaEmergente /><br/></>)}
+          {!loading && (<>          
+          <Modal.Header closeButton><Modal.Title>Invitaciones</Modal.Title></Modal.Header>
           <Modal.Body>
               <Container>
                   {!hayInvitaciones && 
@@ -131,8 +134,8 @@ function rechazarInvitacion(id, hogar){
                       ))
                   }
               </Container>
-          </Modal.Body>
-      </Modal>
+          </Modal.Body></>)}
+        </Modal>
       <Navbar bg="dark" variant="dark">
       <Container>
       <Navbar.Brand href="/">

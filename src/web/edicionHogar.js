@@ -348,7 +348,7 @@ function EdicionHogar(){
                     <Col sm={6}></Col>
                     <Col sm={6}></Col>
                 </Row>
-
+                <br/>
             </Container>
                 
             </>

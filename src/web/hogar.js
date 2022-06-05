@@ -9,6 +9,7 @@ import React from 'react';
 import {toast, ToastContainer} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import SideBar from "../components/SideBar.js";
+import LoadingVentanaEmergente from "../components/LoadingVentanaEmergente";
 
 
 function Hogar(){
@@ -16,6 +17,8 @@ function Hogar(){
 
     const minFechaDefault = new Date(new Date().getTime() - 24*60*60*1000).toJSON()
     const maxFechaDefault = new Date().toJSON()
+
+    const [loading, isLoading] = useState(false)
     
     const [hogar, setHogar] = useState(null)
     const [dispositivos, setDispositivos] = useState(null)
@@ -37,6 +40,8 @@ function Hogar(){
 
     const handleClose = () => setShow(false);
     const handleShow = () => {
+        isLoading(true)
+        setShow(true)
         var requestOptions = {
             method: 'GET',
             headers: { 'Authorization' : sessionStorage.getItem("token") }
@@ -50,7 +55,7 @@ function Hogar(){
             }else{
                 setHayCompartidos(false)
             }
-            setShow(true)
+            isLoading(false)
         })
     };
     const handleCloseCompartir = () => setShowCompartir(false);
@@ -60,9 +65,12 @@ function Hogar(){
     const handleCloseAbandonarHogar = () => setShowAbandonarHogar(false);
     const handleShowAbandonarHogar = () => setShowAbandonarHogar(true);
 
-    const [showCompararDias, setShowCompararDias] = useState(0);
-    const handleCloseCompararDias = () => setShowCompararDias(0);
-    const handleShowCompararDias = () => setShowCompararDias(showCompararDias + 1);
+    const [showCompararDias, setShowCompararDias] = useState(false)
+    const handleCloseCompararDias = () => setShowCompararDias(false);
+    const handleShowCompararDias = () => setShowCompararDias(true);
+    const [loadingCompararDias, setLoadingCompararDias] = useState(0);
+    const handleCloseLoadingCompararDias = () => setLoadingCompararDias(2);
+    const handleShowLoadingCompararDias = () => setLoadingCompararDias(0);
 
     //Variables para filtrar
     const [filtrarFechas,setFiltrarFechas] = useState(false);
@@ -82,6 +90,7 @@ function Hogar(){
 
 
     const InviteHogar = () => {
+        isLoading(true)
         var requestOptions = {
             method: 'POST',
             headers: { 'Content-Type': 'application/json','Authorization' : sessionStorage.getItem("token")},
@@ -90,8 +99,9 @@ function Hogar(){
           fetch(process.env.REACT_APP_BASE_URL + "ofrecerInvitacion/", requestOptions).then
           (response => response.json()).then
             ((data) =>{
-                setShowCompartir(false);
-                setShow(false);
+                isLoading(false)
+                handleCloseCompartir();
+                handleShow();
                 if (!data.mensaje){
                     toast.success("Has enviado una invitación a su hogar con éxito!");
                 }else {
@@ -156,13 +166,13 @@ function Hogar(){
     }, [])
 
     function handleDejarCompartir(id){
-        console.log(id)
+        isLoading(true)
         var requestOptions = {
             method: 'DELETE',
             headers: { 'Authorization' : sessionStorage.getItem("token") }
         };
         fetch(process.env.REACT_APP_BASE_URL + "compartidos/" + id, requestOptions).then
-        (response => {handleClose()})
+        (response => {handleClose(); isLoading(false);})
     }
 
     function abandonarHogar(){
@@ -235,6 +245,8 @@ function Hogar(){
     }
 
     function comparacionDias(){
+        handleShowCompararDias()
+        handleShowLoadingCompararDias()
         var requestOptions = {
             method: 'GET',
             headers: { 'Authorization' : sessionStorage.getItem("token") }
@@ -255,10 +267,10 @@ function Hogar(){
                     })
                 }
                 setPrimerDiaDatos(aux)
-                handleShowCompararDias()
+                handleCloseLoadingCompararDias()
             })
         }else{
-            handleShowCompararDias()
+            handleCloseLoadingCompararDias()
         }
         if(segundoDia !== null){
             let day = new Date(segundoDia)
@@ -276,10 +288,10 @@ function Hogar(){
                     })
                 }
                 setSegundoDiaDatos(aux)
-                handleShowCompararDias()
+                handleCloseLoadingCompararDias()
             })
         }else{
-            handleShowCompararDias()
+            handleCloseLoadingCompararDias()
         }
 
     }
@@ -291,11 +303,12 @@ function Hogar(){
         <>
             <ToastContainer />
             <Modal show={show} onHide={handleClose}>
-                    <Modal.Header closeButton>
+                {loading && (<><br/><LoadingVentanaEmergente /><br/></>)}
+                {!loading && (<><Modal.Header closeButton>
                         <Container>
                             <Row>
                                 <Col><Modal.Title>Compatidos</Modal.Title></Col>
-                                <Col><Button variant="primary" onClick={handleShowCompartir}>Invitar</Button></Col>
+                                <Col><Button variant="primary" onClick={() => {handleClose(); handleShowCompartir();}}>Invitar</Button></Col>
                             </Row>
                         </Container>
                     </Modal.Header>
@@ -313,10 +326,11 @@ function Hogar(){
                                ))
                             }
                         </Container>
-                    </Modal.Body>
+                    </Modal.Body></>)}    
             </Modal>
             <Modal show={showCompararDias} onHide={handleCloseCompararDias} size="xl">
-                    <Modal.Header closeButton><h3>Comparando días</h3></Modal.Header>
+                {loadingCompararDias != 2 && (<><br/><LoadingVentanaEmergente /><br/></>)}
+                {loadingCompararDias == 2 && (<><Modal.Header closeButton><h3>Comparando días</h3></Modal.Header>
                     <Modal.Body>
                         <Container>
                             <Row>
@@ -324,10 +338,11 @@ function Hogar(){
                                 <Col><AnyChart id="lineChartSegundoDia" type="line" data={segundoDiaDatos} width={500} height={250} title={segundoDiaTitle}/></Col>
                             </Row>
                         </Container>
-                    </Modal.Body>
+                    </Modal.Body></>)}    
             </Modal>
-            <Modal show={showCompartir} onHide={handleCloseCompartir}>
-                    <Modal.Header closeButton>
+            <Modal show={showCompartir} onHide={() => {handleCloseCompartir(); handleShow();}}>
+                {loading && (<><br/><LoadingVentanaEmergente /><br/></>)}
+                {!loading && (<><Modal.Header closeButton>
                         <Modal.Title>Compartir con</Modal.Title>
                     </Modal.Header>
                     <Modal.Body>
@@ -337,7 +352,7 @@ function Hogar(){
                                 <Col><Button onClick={InviteHogar}>Compartir</Button></Col>
                             </Row>
                         </Container>
-                    </Modal.Body>
+                    </Modal.Body></>)}    
             </Modal>
             <Modal show={showAbandonarHogar} onHide={handleCloseAbandonarHogar}>
                     <Modal.Header closeButton>
