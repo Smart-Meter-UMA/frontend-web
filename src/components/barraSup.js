@@ -19,7 +19,14 @@ function BarraSup() {
       headers: { 'Content-Type': 'application/json','Authorization' : sessionStorage.getItem("token") }
     };
     fetch(process.env.REACT_APP_BASE_URL + "invitacionsRecibidas/",requestOptions).then
-    (response => response.json()).then
+    (response => { 
+      if(response.status === 401){
+        sessionStorage.removeItem("token")
+        window.location.replace("/login");
+      }else{
+        return response.json()
+      }
+    }).then
     ((data) => {
         setInvitaciones(data)
         if(data.length !== 0){

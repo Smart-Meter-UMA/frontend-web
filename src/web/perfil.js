@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import Loading from "../components/Loading";
-import { Button, Col, Container, Row, ToggleButton, ToggleButtonGroup } from "react-bootstrap";
-
+import { Button, Col, Container, Form, Row } from "react-bootstrap";
+import {toast, ToastContainer} from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 function Perfil() {
 
@@ -12,13 +13,17 @@ function Perfil() {
     const [notificaciones, setNotificaciones] = useState(false)
 
     const ModifyInfo = () => {
-        var requestOptions = {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json','Authorization' : sessionStorage.getItem("token")},
-            body: JSON.stringify({"nombre":nombre,"apellidos":apellidos,"notificacion_invitados":notificaciones})
-          };
-          fetch(process.env.REACT_APP_BASE_URL + "usuarios/" + currentUser.id, requestOptions).then
-          (response => {window.location.replace("/perfil")})
+        if(nombre !== ""){
+            var requestOptions = {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json','Authorization' : sessionStorage.getItem("token")},
+                body: JSON.stringify({"nombre":nombre,"apellidos":apellidos,"notificacion_invitados":notificaciones})
+              };
+              fetch(process.env.REACT_APP_BASE_URL + "usuarios/" + currentUser.id, requestOptions).then
+              (response => {toast.success("Se ha actualizado el perfil correctamente"); window.location.replace("/perfil")})
+        }else{
+            toast.error("El nombre no puede quedar vacio")
+        }
     }
     
     const DeleteInfo = () => {
@@ -27,8 +32,7 @@ function Perfil() {
             headers: { 'Content-Type': 'application/json','Authorization' : sessionStorage.getItem("token")}
         };
         fetch(process.env.REACT_APP_BASE_URL + "usuarios/" + currentUser.id, requestOptions).then
-        (response => {window.location.replace("/login")},
-        error =>{})
+        (response => {window.location.replace("/login")})
     }
 
     useEffect(() => {
@@ -51,7 +55,8 @@ function Perfil() {
     }else{
         return(
             <>
-                    <br/>
+                <ToastContainer />
+                <br/>
                 <Container>
                     <Row><h1>Mi perfil {currentUser.email}</h1></Row>
                     <br/>
@@ -72,15 +77,15 @@ function Perfil() {
                     <Row>
                         <Col sm={2}></Col>
                         <Col>
-                            ¿Desea recibir notificaciones sobre las invitaciones que recibe?{' '}
-                            <ToggleButtonGroup type="radio" name="options" defaultValue={notificaciones?1:2}>
-                                <ToggleButton id="tbg-radio-1" value={1}  variant={"outline-success"} onClick={() => setNotificaciones(true)}>
-                                    Si
-                                </ToggleButton>
-                                <ToggleButton id="tbg-radio-2" value={2} variant={"outline-danger"} onClick={() => setNotificaciones(false)}>
-                                    No
-                                </ToggleButton>
-                            </ToggleButtonGroup>
+                            <Row>
+                                <Col sm={1}></Col>
+                                <Col sm={7}>¿Desea recibir notificaciones sobre las invitaciones que recibe?</Col>
+                                <Col sm={1}>
+                                    {notificaciones === true && "Si"}
+                                    {notificaciones === false && "No"}
+                                </Col>
+                                <Col sm={1}><Form.Check type="switch" id="custom-switch" checked={notificaciones} onClick={() => {setNotificaciones(!notificaciones)}}/></Col>
+                            </Row>
                         </Col>
                         <Col sm={2}></Col>
                     </Row>

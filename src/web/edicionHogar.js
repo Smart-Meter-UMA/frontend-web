@@ -4,6 +4,8 @@ import { useParams } from "react-router-dom";
 import Loading from "../components/Loading";
 import iconoBorrar from "../assets/papelera.png"
 import iconoI from "../assets/iconoI.png"
+import {toast, ToastContainer} from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 
 function EdicionHogar(){
@@ -73,14 +75,19 @@ function EdicionHogar(){
         if (potencia_contratada == null || potencia_contratada == ""){
             setPotencia_contratada(0)
         }
-        hogar.potencia_contratada = potencia_contratada
-        var requestOptions = {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json', 'Authorization' : sessionStorage.getItem("token") },
-            body: JSON.stringify(hogar)
-          };
-          fetch(process.env.REACT_APP_BASE_URL + "hogars/"+hogar.id, requestOptions).then
-          (response => {window.location.replace("/hogar/"+hogar.id)})
+        if(nombre !== ""){
+            hogar.potencia_contratada = potencia_contratada
+            var requestOptions = {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json', 'Authorization' : sessionStorage.getItem("token") },
+                body: JSON.stringify(hogar)
+              };
+              fetch(process.env.REACT_APP_BASE_URL + "hogars/"+hogar.id, requestOptions).then
+              (response => {window.location.replace("/hogar/"+hogar.id)})
+        }else{
+            toast.error("El nombre del hogar no puede quedar vacio")
+        }
+
     }
 
     const renderTooltipTiempoRefrescado = (props) => (
@@ -110,13 +117,22 @@ function EdicionHogar(){
       );
     
     function actualiarDispositivo(i){
-        var requestOptions = {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json', 'Authorization' : sessionStorage.getItem("token") },
-            body: JSON.stringify(dispositivos[i])
-          };
-          fetch(process.env.REACT_APP_BASE_URL + "dispositivos/"+dispositivos[i].id, requestOptions).then
-          (response => {window.location.replace("/hogar/"+hogar.id)})
+        if(dispositivos[i].nombre !== "" && dispositivos[i].tiempo_medida >= 1 && dispositivos[i].tiempo_medida <= 15 && dispositivos[i].tiempo_refrescado >= 1 && dispositivos[i].tiempo_refrescado <= 15){
+            var requestOptions = {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json', 'Authorization' : sessionStorage.getItem("token") },
+                body: JSON.stringify(dispositivos[i])
+              };
+              fetch(process.env.REACT_APP_BASE_URL + "dispositivos/"+dispositivos[i].id, requestOptions).then
+              (response => {window.location.replace("/hogar/"+hogar.id)})
+        }else if (dispositivos[i].nombre === ""){
+            toast.error("No se puede dejar el nombre de dispositivo vacio")
+        }else if(dispositivos[i].tiempo_medida < 1 || dispositivos[i].tiempo_medida > 15 ){
+            toast.error("El tiempo de medida no puede ser menor que 1 ni mayor que 15")
+        }else if(dispositivos[i].tiempo_refrescado < 1 || dispositivos[i].tiempo_refrescado > 15 ){
+            toast.error("El tiempo de refrescado no puede ser menor que 1 ni mayor que 15")
+        }
+
     }
 
     if(!loaded){
@@ -124,6 +140,7 @@ function EdicionHogar(){
     }else{
         return(
             <>
+            <ToastContainer />
             {/*Modal para preguntar si quiere borrar un dispositivo*/}
             <Modal show={showModalBorrarDispositivo} onHide={handleCloseModalBorrarDispositivo}>
                 <Modal.Header closeButton>
