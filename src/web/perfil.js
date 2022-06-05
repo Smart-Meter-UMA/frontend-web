@@ -58,7 +58,7 @@ function Perfil() {
                 <ToastContainer />
                 <br/>
                 <Container>
-                    <Row><h1>Mi perfil {currentUser.email}</h1></Row>
+                    <Row><h1>Mi perfil</h1></Row>
                     <br/>
                     <Row>
                         <Col></Col>
@@ -71,6 +71,13 @@ function Perfil() {
                         <Col></Col>
                         <Col><Row>Apellidos:</Row></Col>
                         <Col><Row><input type="text" defaultValue={currentUser.apellidos} name="apellidos" onChange={(e) => setApellidos(e.target.value)}  required/> </Row></Col>
+                        <Col></Col>
+                    </Row>
+                    <br/>
+                    <Row>
+                        <Col></Col>
+                        <Col><Row>Email:</Row></Col>
+                        <Col><Row><input type="text" defaultValue={currentUser.email} name="email" disabled/> </Row></Col>
                         <Col></Col>
                     </Row>
                     <br/>
@@ -97,7 +104,7 @@ function Perfil() {
                         </Col>
                         <Col sm={5}></Col>
                     </Row>
-                    <br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
+                    <br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
                     <Row>
                         <Col sm={2}><Row><Button variant="danger" onClick={DeleteInfo}>Darse de baja</Button></Row></Col>
                         <Col sm={6}></Col>
