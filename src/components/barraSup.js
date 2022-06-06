@@ -152,6 +152,7 @@ function rechazarInvitacion(id, hogar){
           {hogares.length !== 0 &&  <NavDropdown.Divider />}
           <NavDropdown.Item href="/registro/hogar">Nuevo hogar</NavDropdown.Item>
         </NavDropdown>
+        <Nav.Link href="/costeHisotricos">Costes Históricos</Nav.Link>
       </Nav>
       </Navbar.Collapse>
       <Nav>

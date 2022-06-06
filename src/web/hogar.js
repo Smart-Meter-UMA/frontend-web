@@ -194,6 +194,7 @@ function Hogar(){
         let filtro = ""
         if(filtrarFechas){ 
             if(fechaDesde !== null){
+                console.log(new Date(fechaDesde).toJSON())
                 filtro += "&minDate="+new Date(fechaDesde).toJSON()
             }
             if(fechaHasta !== null){
@@ -293,7 +294,6 @@ function Hogar(){
         }else{
             handleCloseLoadingCompararDias()
         }
-
     }
 
     if(!loadedDatos && !loadedEstadistica){
@@ -465,7 +465,7 @@ function Hogar(){
                                             <Col sm={4}>
                                                 <Row>
                                                     <Col><Row>Fecha inicio:</Row></Col>
-                                                    <Col><Row><input type={"datetime-local"} value={fechaDesde} onChange={(e) =>{setFechaDesde(e.target.value)}}/></Row></Col>
+                                                    <Col><Row><input type={"datetime-local"} value={fechaDesde} onChange={(e) =>{setFechaDesde(e.target.value); console.log(e.target.value)}}/></Row></Col>
                                                 </Row>    
                                             </Col>
                                             <Col sm={1}></Col>
