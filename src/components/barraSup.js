@@ -4,6 +4,7 @@ import logo from '../assets/logoSmartMeterNoFondo2.png';
 import { useEffect, useState } from "react";
 import Modal from 'react-bootstrap/Modal'
 import LoadingVentanaEmergente from "./LoadingVentanaEmergente";
+import AnyChart from 'anychart-react'
 
 function BarraSup() {
   const [loading, isLoading] = useState(false)
@@ -14,6 +15,15 @@ function BarraSup() {
   const [invitaciones, setInvitaciones] = useState([])
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
+
+
+  const [showEstadistica, setShowEstadistica] = useState(false);
+  const handleCloseEstadistica = () => setShowEstadistica(false);
+  const handleShowEstadistica = () => setShowEstadistica(true);
+
+  const [datos, setDatos] = useState([])
+  const [titulo, setTitulo] = useState("")
+
   const obtenerInvitaciones = () => {
     var requestOptions = {
       method: 'GET',
@@ -91,6 +101,57 @@ function rechazarInvitacion(id, hogar){
   }
 }, [])
 
+  function poner0(val){return val > 9 ? val : "0" + val }
+
+
+  function obtenerEstadisticaValoresEnergia(opcion){
+    handleShowEstadistica()
+    isLoading(true)
+    if(opcion == 0){
+      fetch(process.env.REACT_APP_BASE_URL + "precios/3").then
+      (response => response.json()).then
+      ((data) => {
+        let hora = 0
+        let aux = []
+        console.log(data)
+        for(let i = 0; i < 24; i++){
+          aux.push({'x':poner0(i)+":00",'y':data[poner0(i)] / 1000})
+        }
+        setDatos(aux)
+        setTitulo("Media del €/KWh en la última semana")
+        isLoading(false)
+      })
+    }else if (opcion == 1){
+      fetch(process.env.REACT_APP_BASE_URL + "precios/4").then
+      (response => response.json()).then
+      ((data) => {
+        let hora = 0
+        let aux = []
+        console.log(data)
+        for(let i = 0; i < 24; i++){
+          aux.push({'x':poner0(i)+":00",'y':data[poner0(i)] / 1000})
+        }
+        setDatos(aux)
+        setTitulo("Media del €/KWh en el último mes")
+        isLoading(false)
+      })
+    }else{
+      fetch(process.env.REACT_APP_BASE_URL + "precios/5").then
+      (response => response.json()).then
+      ((data) => {
+        let hora = 0
+        let aux = []
+        console.log(data)
+        for(let i = 0; i < 24; i++){
+          aux.push({'x':poner0(i)+":00",'y':data[poner0(i)] / 1000})
+        }
+        setDatos(aux)
+        setTitulo("Media del €/KWh en los últimos 3 mes")
+        isLoading(false)
+      })
+    }
+  }
+
   const logout = (e) => {
     sessionStorage.removeItem("token")
     window.location.replace("/login");
@@ -136,6 +197,34 @@ function rechazarInvitacion(id, hogar){
               </Container>
           </Modal.Body></>)}
         </Modal>
+        <Modal show={showEstadistica} onHide={handleCloseEstadistica} size={"xl"}>
+          {loading && (
+            <Container>
+              <br/>
+              <Row>
+                <Col></Col>
+                <Col><LoadingVentanaEmergente /></Col>
+                <Col></Col>
+              </Row>
+              <br/>
+              <Row>
+                <Col sm={3}></Col>
+                <Col><h3>Esta estadística puede conllevar un tiempo ...</h3></Col>
+                <Col sm={1}></Col>
+              </Row>
+            </Container>
+          )}
+          {!loading && (<>          
+          <Modal.Body>
+              <Container>
+                <Row>
+                  <Col></Col>
+                  <Col><AnyChart id="lineChartEstadisticaValoresEnergia" type="line" data={datos} width={1100} height={500} title={titulo}/></Col>
+                  <Col></Col>
+                </Row>
+              </Container>
+          </Modal.Body></>)}
+        </Modal>
       <Navbar bg="dark" variant="dark">
       <Container>
       <Navbar.Brand href="/">
@@ -152,7 +241,13 @@ function rechazarInvitacion(id, hogar){
           {hogares.length !== 0 &&  <NavDropdown.Divider />}
           <NavDropdown.Item href="/registro/hogar">Nuevo hogar</NavDropdown.Item>
         </NavDropdown>
-        <Nav.Link href="/costeHisotricos">Costes Históricos</Nav.Link>
+        <NavDropdown title="Valores de energía">
+          <NavDropdown.Item href="/valoresEnergia">Precio de las empresas</NavDropdown.Item>
+          <NavDropdown.Divider />
+          <NavDropdown.Item onClick={() => obtenerEstadisticaValoresEnergia(0)}>Media de precios última semana</NavDropdown.Item>
+          <NavDropdown.Item onClick={() => obtenerEstadisticaValoresEnergia(1)}>Media de precios último mes</NavDropdown.Item>
+          <NavDropdown.Item onClick={() => obtenerEstadisticaValoresEnergia(2)}>Media de precios últimos 3 meses</NavDropdown.Item>
+        </NavDropdown>
       </Nav>
       </Navbar.Collapse>
       <Nav>

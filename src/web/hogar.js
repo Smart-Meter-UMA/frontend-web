@@ -111,6 +111,7 @@ function Hogar(){
     }
 
     function handleChangeDispositivo(id){
+        isEstadisticaLoaded(false)
         var requestOptions = {
             method: 'GET',
             headers: { 'Authorization' : sessionStorage.getItem("token") }
@@ -118,8 +119,10 @@ function Hogar(){
         fetch(process.env.REACT_APP_BASE_URL + "dispositivos/" + id, requestOptions).then
         (response => response.json()).then
         ((data) =>{
+            console.log("hola")
             setEstadisticas(data.estadisticas)
             setRadioValue(id)
+            isEstadisticaLoaded(true)
         })
     }
 
@@ -296,7 +299,7 @@ function Hogar(){
         }
     }
 
-    if(!loadedDatos && !loadedEstadistica){
+    if(!loadedDatos){
         return <Loading />
     }else{
         return(
@@ -382,6 +385,7 @@ function Hogar(){
                 <br/>
                 <Row className="justify-content-md-center">
                     <Col>
+                       
                         {!hayDispositivos &&<h3>No hay dispositivos</h3>}
                         {hayDispositivos &&
                             <ButtonGroup>
@@ -392,8 +396,9 @@ function Hogar(){
                                     type="radio"
                                     variant="outline-primary"
                                     name="radio"
-                                    checked={radioValue === dispositivo.id}
-                                    onChange={() => {handleChangeDispositivo(id)}}
+                                    checked={radioValue == dispositivo.id}
+                                    value={dispositivo.id}
+                                    onChange={(e) => {handleChangeDispositivo(e.currentTarget.value)}}
                                     >{dispositivo.nombre}</ToggleButton>
                                 ))}
                             </ButtonGroup> 
@@ -401,7 +406,8 @@ function Hogar(){
                     </Col>
                 </Row>
                 <br/>
-                {estadisticas !== null && (
+                {!loadedEstadistica && <Loading />}
+                {loadedEstadistica  && (
                 <>
                 <Row>
                     <Col></Col>

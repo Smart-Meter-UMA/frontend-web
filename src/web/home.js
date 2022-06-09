@@ -13,6 +13,13 @@ function Home() {
 
     function poner0(val){return val > 9 ? val : "0" + val }
 
+    function formatearFecha(fecha){
+        let dia = fecha.split("/")[0]
+        let mes = fecha.split("/")[1]
+        let anio = fecha.split("/")[2]
+        return anio+"-"+mes+"-"+dia
+    }
+
     function obtenerFormatoFecha(fecha){return fecha.getFullYear()+"-"+poner0(fecha.getMonth() + 1)+"-"+poner0(fecha.getDate())}
 
     function obtenerFormatoFechaApi(fecha){
@@ -26,11 +33,11 @@ function Home() {
             let hora = 0
             let aux = []
             data.precios_pvpc.map((precio) =>{
-                aux.push({'x':poner0(hora),'y':precio[""+poner0(hora)+""] / 1000})
+                aux.push({'x':poner0(hora)+":00",'y':precio[""+poner0(hora)+""] / 1000})
                 hora = hora + 1
             })
             setDatos(aux)
-            setFecha(new Date(data.Dia))
+            setFecha(new Date(formatearFecha(data.Dia)))
             setFechaTitulo(data.Dia)
             isLoaded(true)
         })
@@ -45,7 +52,7 @@ function Home() {
             let hora = 0
             let aux = []
             data.precios_pvpc.map((precio) =>{
-                aux.push({'x':poner0(hora),'y':precio[""+poner0(hora)+""] / 1000})
+                aux.push({'x':poner0(hora)+":00",'y':precio[""+poner0(hora)+""] / 1000})
                 hora = hora + 1
             })
             setDatos(aux)
@@ -81,7 +88,7 @@ function Home() {
                     <br/>
                     <Row>
                         <Col></Col>
-                        <Col><AnyChart data={datos} type="column" title={"Precio de la luz en € el día "+fechaTitulo} width={800} height={600} /></Col>
+                        <Col><AnyChart data={datos} type="line" title={"Precio de la luz en € el día "+fechaTitulo} width={1300} height={500} /></Col>
                         <Col></Col>
                     </Row>
                 </Container>
