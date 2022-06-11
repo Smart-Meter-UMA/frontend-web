@@ -138,9 +138,9 @@ function Hogar(){
         (response => response.json()).then
         ((data) => {
             setHogar(data)
-            setHayDispositivos(data.dispositivos.length !== 0)
+            setHayDispositivos(data.dispositivos.length != 0)
             setDispositivos(data.dispositivos)
-            if (data.dispositivos.length !== 0){
+            if (data.dispositivos.length != 0){
                 setRadioValue(data.dispositivos[0].id)
                 fetch(process.env.REACT_APP_BASE_URL + "dispositivos/" + data.dispositivos[0].id, requestOptions).then
                 (response => response.json()).then
@@ -385,7 +385,6 @@ function Hogar(){
                 <br/>
                 <Row className="justify-content-md-center">
                     <Col>
-                       
                         {!hayDispositivos &&<h3>No hay dispositivos</h3>}
                         {hayDispositivos &&
                             <ButtonGroup>
@@ -406,23 +405,23 @@ function Hogar(){
                     </Col>
                 </Row>
                 <br/>
-                {!loadedEstadistica && <Loading />}
-                {loadedEstadistica  && (
+                {!loadedEstadistica && hayDispositivos && <Loading />}
+                {loadedEstadistica  && hayDispositivos && (
                 <>
                 <Row>
                     <Col></Col>
                     <Col><Row>Consumido Hoy:</Row></Col>
-                    <Col>{estadisticas.consumidoHoy} KWh</Col>
+                    <Col>{estadisticas.consumidoHoy} KWh ({estadisticas.sumaDiaDinero} €)</Col>
                     <Col><Row>Consumido Mes:</Row></Col>
-                    <Col>{estadisticas.consumidoMes} KWh</Col>
+                    <Col>{estadisticas.consumidoMes} KWh ({estadisticas.sumaMesDinero} €)</Col>
                     <Col></Col>
                 </Row>
                 <Row>
                     <Col></Col>
                     <Col><Row>Media diaria:</Row></Col>
-                    <Col>{estadisticas.mediaKWHDiaria} KWh</Col>
+                    <Col>{estadisticas.mediaKWHDiaria} KWh ({estadisticas.sumaMediaDiariaDinero} €)</Col>
                     <Col><Row>Media mensual:</Row></Col>
-                    <Col>{estadisticas.mediaKWHMensual} KWh</Col>
+                    <Col>{estadisticas.mediaKWHMensual} KWh ({(estadisticas.mediaKWHMensual > 0 && estadisticas.sumaMediaMensualDinero == 0? "~ " : "") + estadisticas.sumaMediaMensualDinero} €)</Col>
                     <Col></Col>
                 </Row>
                 <Row>
