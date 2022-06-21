@@ -75,7 +75,7 @@ function ValoresEnergia() {
     }
 
     useEffect(() =>{
-        fetch(process.env.REACT_APP_BASE_URL + "precios/2").then
+        fetch(process.env.REACT_APP_BASE_URL_PRECIOS+ "obtener_tarifas").then
         (response => response.json()).then
         ((data) => { 
             let aux = formatearDatos(data)

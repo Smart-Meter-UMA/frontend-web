@@ -6,15 +6,19 @@ import 'react-toastify/dist/ReactToastify.css';
 
 function AddTarifa(){
 
+    function poner0(val){return val > 9 ? val : "0" + val }
+
+    function obtenerFormatoFecha(fecha){return fecha.getFullYear()+"-"+poner0(fecha.getMonth() + 1)+"-"+poner0(fecha.getDate())}
     const [tarifa, setTarifa] = useState({
-        "comercializadora":"",
-        "nombre":"",
-        "potencia1":null,
-        "potencia2":null,
-        "precio1":null,
-        "preico2":null,
-        "precio3":null
-    })
+        "comercializadora": "",
+        "nombre": "",
+        "fecha_actualización": obtenerFormatoFecha(new Date()),
+        "potencia_1":0,
+        "potencia_2":0,
+        "precio_1":0,
+        "precio_2":0,
+        "precio_3":null
+      })
 
     function handleComercializadora (e) {
         tarifa.comercializadora = e.target.value;
@@ -27,24 +31,39 @@ function AddTarifa(){
     }
 
     function handlePrecio1 (e) {
-        tarifa.precio1 = e.target.value;
+        tarifa.precio_1 = e.target.value;
         setTarifa(tarifa);
     }
 
     function handlePrecio2 (e) {
-        tarifa.precio2 = e.target.value;
+        tarifa.precio_2 = e.target.value;
+        setTarifa(tarifa);
+    }
+
+    function handlePotencia1 (e) {
+        tarifa.potencia_1 = e.target.value;
+        setTarifa(tarifa);
+    }
+
+    function handlePotencia2 (e) {
+        tarifa.potencia_2 = e.target.value;
         setTarifa(tarifa);
     }
 
     function handleNuevaTarifa(){
+        let aux = tarifa
+        aux.precio_1 = aux.precio_1 != null? parseFloat(aux.precio_1) : null
+        aux.precio_2 = aux.precio_2 != null? parseFloat(aux.precio_2) : null
+        aux.potencia_1 = aux.potencia_1 != null? parseFloat(aux.potencia_1) : null
+        aux.potencia_2 = aux.potencia_2 != null? parseFloat(aux.potencia_2) : null
         var requestOptions = {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(tarifa)
+            body: JSON.stringify(aux)
         };
-        //TODO: HACER EL FETCH CUANDO ESTE
-        fetch().then
+        fetch("http://51.38.189.176/add_tarifa",requestOptions).then
         (response => {
+            console.log(response.json())
             if(response.status == 422){
                 toast.error("Error al crear la tarifa: " + response.json().msg)
             }else{
@@ -88,6 +107,20 @@ function AddTarifa(){
                     <Col></Col>
                     <Col><Row>Nombre de la tarifa:</Row></Col>
                     <Col><Row><input type="text" onChange={handleNombreTarifa}/> </Row></Col>
+                    <Col></Col>
+                </Row>
+                <br/>
+                <Row>
+                    <Col></Col>
+                    <Col><Row>Potencia periodo punta:</Row></Col>
+                    <Col><Row><input type="number" onChange={handlePotencia1}/> </Row></Col>
+                    <Col></Col>
+                </Row>
+                <br/>
+                <Row>
+                    <Col></Col>
+                    <Col><Row>Potencia periodo valle:</Row></Col>
+                    <Col><Row><input type="number" onChange={handlePotencia2}/> </Row></Col>
                     <Col></Col>
                 </Row>
                 <br/>

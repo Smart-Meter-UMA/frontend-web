@@ -27,7 +27,7 @@ function Home() {
         return year.slice(year.length-2,year.length)+"-"+poner0(fecha.getMonth() + 1)+"-"+poner0(fecha.getDate())
     }
     useEffect(() => {
-        fetch(process.env.REACT_APP_BASE_URL + "precios/1?fecha="+obtenerFormatoFechaApi(new Date())).then
+        fetch(process.env.REACT_APP_BASE_URL_PRECIOS+"pvpc_dia/"+obtenerFormatoFechaApi(new Date())).then
         (response => response.json()).then
         ((data) => {
             let hora = 0
@@ -46,7 +46,7 @@ function Home() {
 
       function filtrarFecha(){
         isLoaded(false)
-        fetch(process.env.REACT_APP_BASE_URL + "precios/1?fecha="+obtenerFormatoFechaApi(fecha)).then
+        fetch(process.env.REACT_APP_BASE_URL_PRECIOS+"pvpc_dia/"+obtenerFormatoFechaApi(fecha)).then
         (response => response.json()).then
         ((data) => {
             let hora = 0

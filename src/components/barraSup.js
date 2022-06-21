@@ -172,7 +172,7 @@ function rechazarInvitacion(id, hogar){
   }else{
     return (
       <>
-        <Modal show={show} onHide={handleClose} size="lg">
+        <Modal show={show} onHide={handleClose} size="xl">
           {loading && (<><br/><LoadingVentanaEmergente /><br/></>)}
           {!loading && (<>          
           <Modal.Header closeButton><Modal.Title>Invitaciones</Modal.Title></Modal.Header>

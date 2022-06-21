@@ -83,7 +83,13 @@ function EdicionHogar(){
                 body: JSON.stringify(hogar)
               };
               fetch(process.env.REACT_APP_BASE_URL + "hogars/"+hogar.id, requestOptions).then
-              (response => {window.location.replace("/hogar/"+hogar.id)})
+              (response => {
+                if(response.status == 204){
+                    window.location.replace("/hogar/"+hogar.id)
+                }else{
+                    toast.error("No se ha podido actualizar correctamente")
+                }
+            })
         }else{
             toast.error("El nombre del hogar no puede quedar vacio")
         }
@@ -124,7 +130,13 @@ function EdicionHogar(){
                 body: JSON.stringify(dispositivos[i])
               };
               fetch(process.env.REACT_APP_BASE_URL + "dispositivos/"+dispositivos[i].id, requestOptions).then
-              (response => {window.location.replace("/hogar/"+hogar.id)})
+              (response => {
+                if(response.status == 204){
+                    window.location.replace("/hogar/"+hogar.id)
+                }else{
+                    toast.error("No se ha podido actualizar correctamente")
+                }
+              })
         }else if (dispositivos[i].nombre === ""){
             toast.error("No se puede dejar el nombre de dispositivo vacio")
         }else if(dispositivos[i].tiempo_medida < 1 || dispositivos[i].tiempo_medida > 15 ){
@@ -247,8 +259,8 @@ function EdicionHogar(){
                                                                     <Col>
                                                                         <Row>
                                                                             <Col><Row>General:</Row></Col> 
-                                                                            <Col><Row><label><input type={"radio"} name="general" defaultChecked={dispositivo.general} onClick={() =>{dispositivos[i].general = true; setDispositivos(dispositivos);}} />{' '}Sí</label></Row></Col>
-                                                                            <Col><Row><label><input type={"radio"} name="general" defaultChecked={!(dispositivo.general)} onClick={() =>{dispositivos[i].general = false; setDispositivos(dispositivos);}} />{' '}No</label></Row></Col>
+                                                                            <Col><Row><label><input type={"radio"} name={"general-"+i} defaultChecked={dispositivo.general} onClick={() =>{dispositivos[i].general = true; setDispositivos(dispositivos);}} />{' '}Sí</label></Row></Col>
+                                                                            <Col><Row><label><input type={"radio"} name={"general-"+i} defaultChecked={!dispositivo.general} onClick={() =>{dispositivos[i].general = false; setDispositivos(dispositivos);}} />{' '}No</label></Row></Col>
                                                                         </Row>
                                                                     </Col>
                                                                     <Col sm={3}></Col>
@@ -264,8 +276,8 @@ function EdicionHogar(){
                                                                     <Col>
                                                                         <Row>
                                                                             <Col><Row>Notificacion:</Row></Col> 
-                                                                            <Col><Row><label><input type={"radio"} name="notificacion" defaultChecked={dispositivo.notificacion} onClick={() =>{dispositivos[i].notificacion = true; setDispositivos(dispositivos);}}/>{' '}Sí</label></Row></Col>
-                                                                            <Col><Row><label><input type={"radio"} name="notificacion" defaultChecked={!(dispositivo.notificacion)} onClick={() =>{dispositivos[i].notificacion = false; setDispositivos(dispositivos);}}/>{' '}No</label></Row></Col>
+                                                                            <Col><Row><label><input type={"radio"} name={"notificacion-"+i} defaultChecked={dispositivo.notificacion} onClick={() =>{dispositivos[i].notificacion = true; setDispositivos(dispositivos);}}/>{' '}Sí</label></Row></Col>
+                                                                            <Col><Row><label><input type={"radio"} name={"notificacion-"+i} defaultChecked={!dispositivo.notificacion} onClick={() =>{dispositivos[i].notificacion = false; setDispositivos(dispositivos);}}/>{' '}No</label></Row></Col>
                                                                         </Row>
                                                                     </Col>
                                                                     <Col sm={3}></Col>

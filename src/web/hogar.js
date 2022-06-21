@@ -123,10 +123,25 @@ function Hogar(){
         fetch(process.env.REACT_APP_BASE_URL + "dispositivos/" + id, requestOptions).then
         (response => response.json()).then
         ((data) =>{
-            console.log("hola")
+            limpiarDatosFiltro()
             setEstadisticas(data.estadisticas)
             setRadioValue(id)
-            isEstadisticaLoaded(true)
+            fetch(process.env.REACT_APP_BASE_URL + "dispositivos/" + id + "/medidas?orderBy=fecha&minDate=" + minFechaDefault+"&maxDate="+maxFechaDefault, requestOptions).then
+            (response => response.json()).then
+            ((data) =>{
+                let aux = []
+                if(data.length !== 0){
+                    data.map((dato) => {
+                        let dia = new Date(dato.fecha)
+                        let hora = dato.fecha.split("T")[1]
+                        hora = hora.substring(0,hora.length-1)
+                        aux.push([dia.toLocaleDateString()+" "+hora,dato.kw])
+                    })
+                }
+                setDatos(aux)
+                isEstadisticaLoaded(true)
+                isDatosLoaded(true)
+            })
         })
     }
 
@@ -158,8 +173,10 @@ function Hogar(){
                     let aux = []
                     if(data.length !== 0){
                         data.map((dato) => {
-                            let fecha = new Date(dato.fecha)
-                            aux.push([fecha.toLocaleDateString()+" "+fecha.toLocaleTimeString(),dato.kw])
+                            let dia = new Date(dato.fecha)
+                            let hora = dato.fecha.split("T")[1]
+                            hora = hora.substring(0,hora.length-1)
+                            aux.push([dia.toLocaleDateString()+" "+hora,dato.kw])
                         })
                     }
                     setDatos(aux)
@@ -200,24 +217,26 @@ function Hogar(){
         };
         let filtro = ""
         if(filtrarFechas){ 
-            if(fechaDesde !== null){
-                console.log(new Date(fechaDesde).toJSON())
+            console.log(fechaDesde)
+            console.log(fechaHasta)
+            if(fechaDesde != ""){
                 filtro += "&minDate="+new Date(fechaDesde).toJSON()
             }
-            if(fechaHasta !== null){
+            if(fechaHasta != ""){
+                console.log("hola")
                 filtro += "&maxDate="+new Date(fechaHasta).toJSON()
             }
-            if(fechaDesde === null && fechaHasta === null){
-                filtro += "&minDate="+minFechaDefault
+            if(fechaDesde == "" && fechaHasta == ""){
+                filtro += "&minDate="+minFechaDefault+"&maxDate="+maxFechaDefault
             }
         }else{
             filtro += "&minDate="+minFechaDefault+"&maxDate="+maxFechaDefault
         }
         if(filtrarValores){
-            if(valoresMinimo !== null){
+            if(valoresMinimo != ""){
                 filtro += "&minData="+valoresMinimo
             }
-            if(fechaHasta !== null){
+            if(fechaHasta != ""){
                 filtro += "&maxData="+valoresMaximo
             }
         }
@@ -225,11 +244,12 @@ function Hogar(){
         (response => response.json()).then
         ((data) =>{
             let aux = []
-            console.log(data)
             if(data.length !== 0){
                 data.map((dato) => {
-                    let fecha = new Date(dato.fecha)
-                    aux.push([fecha.toLocaleDateString()+" "+fecha.toLocaleTimeString(),dato.kw])
+                    let dia = new Date(dato.fecha)
+                    let hora = dato.fecha.split("T")[1]
+                    hora = hora.substring(0,hora.length-1)
+                    aux.push([dia.toLocaleDateString()+" "+hora,dato.kw])
                 })
             }
             setDatos(aux)
@@ -269,8 +289,9 @@ function Hogar(){
                 let aux = []
                 if(data.length !== 0){
                     data.map((dato) => {
-                        let fecha = new Date(dato.fecha)
-                        aux.push({'x':fecha.toLocaleTimeString(),'value':dato.kw})
+                        let hora = dato.fecha.split("T")[1]
+                        hora = hora.substring(0,hora.length-1)
+                        aux.push([hora,dato.kw])
                     })
                 }
                 setPrimerDiaDatos(aux)
@@ -290,8 +311,9 @@ function Hogar(){
                 let aux = []
                 if(data.length !== 0){
                     data.map((dato) => {
-                        let fecha = new Date(dato.fecha)
-                        aux.push({'x':fecha.toLocaleTimeString(),'value':dato.kw})
+                        let hora = dato.fecha.split("T")[1]
+                        hora = hora.substring(0,hora.length-1)
+                        aux.push([hora,dato.kw])
                     })
                 }
                 setSegundoDiaDatos(aux)
