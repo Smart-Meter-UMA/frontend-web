@@ -88,6 +88,10 @@ function Hogar(){
     const [segundoDiaDatos, setSegundoDiaDatos] = useState([]);
     const [segundoDiaTitle, setSegundoDiaTitle] = useState(""); 
 
+    function poner0(val){return val > 9 ? val : "0" + val }
+
+    function obtenerFormatoFecha(fecha){return fecha.getFullYear()+"-"+poner0(fecha.getMonth() + 1)+"-"+poner0(fecha.getDate())+"T"+poner0(fecha.getHours())+":"+poner0(fecha.getMinutes())}
+
 
     const InviteHogar = () => {
         isLoading(true)
@@ -223,7 +227,6 @@ function Hogar(){
             let aux = []
             console.log(data)
             if(data.length !== 0){
-                
                 data.map((dato) => {
                     let fecha = new Date(dato.fecha)
                     aux.push([fecha.toLocaleDateString()+" "+fecha.toLocaleTimeString(),dato.kw])
@@ -419,7 +422,7 @@ function Hogar(){
                 <Row>
                     <Col></Col>
                     <Col><Row>Media diaria:</Row></Col>
-                    <Col>{estadisticas.mediaKWHDiaria} KWh ({estadisticas.sumaMediaDiariaDinero} €)</Col>
+                    <Col>{estadisticas.mediaKWHDiaria} KWh ({(estadisticas.mediaKWHDiaria > 0 && estadisticas.sumaMediaDiariaDinero == 0? "~ " : "") + estadisticas.sumaMediaDiariaDinero} €)</Col>
                     <Col><Row>Media mensual:</Row></Col>
                     <Col>{estadisticas.mediaKWHMensual} KWh ({(estadisticas.mediaKWHMensual > 0 && estadisticas.sumaMediaMensualDinero == 0? "~ " : "") + estadisticas.sumaMediaMensualDinero} €)</Col>
                     <Col></Col>
@@ -470,7 +473,7 @@ function Hogar(){
                                             <Col sm={4}>
                                                 <Row>
                                                     <Col><Row>Fecha inicio:</Row></Col>
-                                                    <Col><Row><input type={"datetime-local"} value={fechaDesde} onChange={(e) =>{setFechaDesde(e.target.value); console.log(e.target.value)}}/></Row></Col>
+                                                    <Col><Row><input type={"datetime-local"} value={fechaDesde} onChange={(e) =>{setFechaDesde(e.target.value)}} max={obtenerFormatoFecha(new Date())}/></Row></Col>
                                                 </Row>    
                                             </Col>
                                             <Col sm={1}></Col>

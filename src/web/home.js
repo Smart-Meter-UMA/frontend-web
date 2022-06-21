@@ -76,7 +76,7 @@ function Home() {
                                     <Container>
                                         <Row>
                                             <Col>Selecciona una fecha:</Col>
-                                            <Col><input type={"date"} value={obtenerFormatoFecha(fecha)} onChange={(e) => {setFecha(new Date(e.target.value))}}/></Col>
+                                            <Col><input type={"date"} value={obtenerFormatoFecha(fecha)} onChange={(e) => {setFecha(new Date(e.target.value))}} max={obtenerFormatoFecha(fecha)}/></Col>
                                             <Col><Button onClick={filtrarFecha}>Buscar</Button></Col>
                                         </Row>
                                     </Container>
