@@ -15,8 +15,8 @@ import LoadingVentanaEmergente from "../components/LoadingVentanaEmergente";
 function Hogar(){
     let {id} = useParams();
 
-    const minFechaDefault = new Date(new Date().getTime() - 24*60*60*1000).toJSON()
-    const maxFechaDefault = new Date().toJSON()
+    const minFechaDefault = obtenerFormatoFecha(new Date(new Date().getTime() - 24*60*60*1000))
+    const maxFechaDefault = obtenerFormatoFecha(new Date())
 
     const [loading, isLoading] = useState(false)
     
@@ -92,6 +92,14 @@ function Hogar(){
 
     function obtenerFormatoFecha(fecha){return fecha.getFullYear()+"-"+poner0(fecha.getMonth() + 1)+"-"+poner0(fecha.getDate())+"T"+poner0(fecha.getHours())+":"+poner0(fecha.getMinutes())}
 
+    function fechaEstadistica(fecha){
+        let date = new Date(fecha)
+        return poner0(date.getDate()) + "/" + poner0(date.getMonth() + 1) + "/" + date.getFullYear()
+    }
+
+    function formarFechaFiltro(fecha){
+        return fecha.getFullYear()+"-"+poner0(fecha.getMonth())+"-"+poner0(fecha.getDate())+"T"
+    }
 
     const InviteHogar = () => {
         isLoading(true)
@@ -132,10 +140,9 @@ function Hogar(){
                 let aux = []
                 if(data.length !== 0){
                     data.map((dato) => {
-                        let dia = new Date(dato.fecha)
                         let hora = dato.fecha.split("T")[1]
                         hora = hora.substring(0,hora.length-1)
-                        aux.push([dia.toLocaleDateString()+" "+hora,dato.kw])
+                        aux.push([fechaEstadistica(dato.fecha)+" "+hora,dato.kw])
                     })
                 }
                 setDatos(aux)
@@ -173,10 +180,9 @@ function Hogar(){
                     let aux = []
                     if(data.length !== 0){
                         data.map((dato) => {
-                            let dia = new Date(dato.fecha)
                             let hora = dato.fecha.split("T")[1]
                             hora = hora.substring(0,hora.length-1)
-                            aux.push([dia.toLocaleDateString()+" "+hora,dato.kw])
+                            aux.push([fechaEstadistica(dato.fecha)+" "+hora,dato.kw])
                         })
                     }
                     setDatos(aux)
@@ -217,14 +223,12 @@ function Hogar(){
         };
         let filtro = ""
         if(filtrarFechas){ 
-            console.log(fechaDesde)
-            console.log(fechaHasta)
             if(fechaDesde != ""){
-                filtro += "&minDate="+new Date(fechaDesde).toJSON()
+                filtro += "&minDate="+obtenerFormatoFecha(new Date(fechaDesde))
             }
             if(fechaHasta != ""){
                 console.log("hola")
-                filtro += "&maxDate="+new Date(fechaHasta).toJSON()
+                filtro += "&maxDate="+obtenerFormatoFecha(new Date(fechaHasta))
             }
             if(fechaDesde == "" && fechaHasta == ""){
                 filtro += "&minDate="+minFechaDefault+"&maxDate="+maxFechaDefault
@@ -246,10 +250,9 @@ function Hogar(){
             let aux = []
             if(data.length !== 0){
                 data.map((dato) => {
-                    let dia = new Date(dato.fecha)
                     let hora = dato.fecha.split("T")[1]
                     hora = hora.substring(0,hora.length-1)
-                    aux.push([dia.toLocaleDateString()+" "+hora,dato.kw])
+                    aux.push([fechaEstadistica(dato.fecha)+" "+hora,dato.kw])
                 })
             }
             setDatos(aux)
@@ -281,8 +284,8 @@ function Hogar(){
         if(primerDia !== null){
             let day = new Date(primerDia)
             setPrimerDiaTitle(day.toDateString())
-            let fechaMinima = new Date(day.getFullYear(), day.getMonth(),day.getDate(), 2, 0, 0).toJSON()
-            let fechaMaxima = new Date(day.getFullYear(), day.getMonth(),day.getDate(),25,59,59).toJSON()
+            let fechaMinima = obtenerFormatoFecha(new Date(day.getFullYear(), day.getMonth(),day.getDate(), 0, 0, 0))
+            let fechaMaxima = obtenerFormatoFecha(new Date(day.getFullYear(), day.getMonth(),day.getDate(),23,59,59))
             fetch(process.env.REACT_APP_BASE_URL + "dispositivos/" + radioValue + "/medidas?orderBy=fecha&minDate="+fechaMinima+"&maxDate="+fechaMaxima, requestOptions).then
             (response => response.json()).then
             ((data) =>{
@@ -303,8 +306,8 @@ function Hogar(){
         if(segundoDia !== null){
             let day = new Date(segundoDia)
             setSegundoDiaTitle(day.toDateString())
-            let fechaMinima = new Date(day.getFullYear(), day.getMonth(),day.getDate(), 2, 0, 0).toJSON()
-            let fechaMaxima = new Date(day.getFullYear(), day.getMonth(),day.getDate(),25,59,59).toJSON()
+            let fechaMinima = obtenerFormatoFecha(new Date(day.getFullYear(), day.getMonth(),day.getDate(), 0, 0, 0))
+            let fechaMaxima = obtenerFormatoFecha(new Date(day.getFullYear(), day.getMonth(),day.getDate(),23,59,59))
             fetch(process.env.REACT_APP_BASE_URL + "dispositivos/" + radioValue + "/medidas?orderBy=fecha&minDate="+fechaMinima+"&maxDate="+fechaMaxima, requestOptions).then
             (response => response.json()).then
             ((data) =>{
@@ -453,20 +456,20 @@ function Hogar(){
                     <Col></Col>
                     <Col><Row>Mínimo diario:</Row></Col>
                     {estadisticas.minKWHDiario === -1 && <Col>-</Col>}
-                    {estadisticas.minKWHDiario !== -1 && <Col>{estadisticas.minKWHDiario} KWh</Col>}
+                    {estadisticas.minKWHDiario !== -1 && <Col>{estadisticas.minKWHDiario} KWh ({fechaEstadistica(estadisticas.diaMinKWHGastado)})</Col>}
                     <Col><Row>Mínimo mensual:</Row></Col>
                     {estadisticas.minKWHMensual === -1 && <Col>-</Col>}
-                    {estadisticas.minKWHMensual !== -1 && <Col>{estadisticas.minKWHMensual} KWh</Col>}
+                    {estadisticas.minKWHMensual !== -1 && <Col>{estadisticas.minKWHMensual} KWh ({fechaEstadistica(estadisticas.mesMinKWHGastado)})</Col>}
                     <Col></Col>
                 </Row>
                 <Row>
                     <Col></Col>
                     <Col><Row>Máximo diario:</Row></Col>
                     {estadisticas.maxKWHDiario === -1 && <Col>-</Col>}
-                    {estadisticas.minKWHDiario !== -1 && <Col>{estadisticas.maxKWHDiario} KWh</Col>}
+                    {estadisticas.minKWHDiario !== -1 && <Col>{estadisticas.maxKWHDiario} KWh ({fechaEstadistica(estadisticas.diaMaxKWHGastado)})</Col>}
                     <Col><Row>Máximo mensual:</Row></Col>
                     {estadisticas.maxKWHMensual === -1 && <Col>-</Col>}
-                    {estadisticas.maxKWHMensual !== -1 && <Col>{estadisticas.maxKWHMensual} KWh</Col>}
+                    {estadisticas.maxKWHMensual !== -1 && <Col>{estadisticas.maxKWHMensual} KWh ({fechaEstadistica(estadisticas.mesMaxKWHGastado)})</Col>}
                     <Col></Col>
                 </Row>
                 <Row>
