@@ -20,7 +20,13 @@ function Perfil() {
                 body: JSON.stringify({"nombre":nombre,"apellidos":apellidos,"notificacion_invitados":notificaciones})
               };
               fetch(process.env.REACT_APP_BASE_URL + "usuarios/" + currentUser.id, requestOptions).then
-              (response => {toast.success("Se ha actualizado el perfil correctamente"); window.location.replace("/perfil")})
+              (response => {
+                if(response.status == 204){
+                    toast.success("Se ha actualizado el perfil correctamente"); 
+                    window.location.replace("/perfil")
+                }else{
+                    toast.error("No se ha podido actualizar correctamente")
+                }})
         }else{
             toast.error("El nombre no puede quedar vacio")
         }
