@@ -22,12 +22,13 @@ function Registro_Hogar() {
           body: JSON.stringify({"nombre":nombre, "potencia_contratada":potencia_aux})
         };
         fetch(process.env.REACT_APP_BASE_URL + "hogars/", requestOptions).then
-        (response => {
-          if(response.status == 200){
-            window.location.replace("/hogar/"+response.json().data.id)
-        }else{
-            toast.error("No se ha podido crear correctamente")
-        }
+        (response => response.json()).then
+        ((data) => {
+          if(data.id){
+            window.location.replace("/hogar/"+data.id)
+          }else{
+              toast.error("No se ha podido crear correctamente")
+          }
         })
       }else{
         toast.error("El nombre del hogar no puede ser vacio")

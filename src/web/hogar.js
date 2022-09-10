@@ -1,25 +1,24 @@
 import { useEffect, useState } from "react";
-import { Button, ButtonGroup, Col, Container, Row, Tabs, ToggleButton } from "react-bootstrap";
+import { Button, ButtonGroup, Col, Container, FormGroup, Row, ToggleButton} from "react-bootstrap";
 import { useParams } from "react-router-dom";
 import Loading from "../components/Loading";
 import Modal from 'react-bootstrap/Modal'
-import Tab from 'react-bootstrap/Tab'
 import AnyChart from 'anychart-react'
 import React from 'react'; 
 import {toast, ToastContainer} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import SideBar from "../components/SideBar.js";
 import LoadingVentanaEmergente from "../components/LoadingVentanaEmergente";
-
+import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
+import 'react-tabs/style/react-tabs.css';
 
 function Hogar(){
     let {id} = useParams();
-
     const minFechaDefault = obtenerFormatoFecha(new Date(new Date().getTime() - 24*60*60*1000))
     const maxFechaDefault = obtenerFormatoFecha(new Date())
 
     const [loading, isLoading] = useState(false)
-    
+
     const [hogar, setHogar] = useState(null)
     const [dispositivos, setDispositivos] = useState(null)
     const [loadedEstadistica, isEstadisticaLoaded] = useState(false)
@@ -27,6 +26,19 @@ function Hogar(){
     const [radioValue, setRadioValue] = useState('1');
     const [hayDispositivos, setHayDispositivos] = useState(false);
     const [datos, setDatos] = useState([]);
+
+    const [tituloGraficaTramosHoras, setTituloGraficaTramosHoras] = useState(null)
+    const [tituloGraficaTramosSemanales, setTituloGraficaTramosSemanales] = useState(null)
+    const [tituloGraficaTramosMensuales, setTituloGraficaTramosMensuales] = useState(null)
+
+    const [datosTramosHorarios, setdatosTramosHorarios] = useState([]);
+    const [radioValueTramosHorarios, setRadioValueTramosHorarios] = useState('1');
+
+    const [datosTramosSemanales, setdatosTramosSemanales] = useState([]);
+    const [radioValueTramosSemanales, setRadioValueTramosSemanales] = useState('1');
+
+    const [datosTramosMensuales, setdatosTramosMensuales] = useState([]);
+    const [radioValueTramosMensuales, setRadioValueTramosMensuales] = useState('1');
 
     const [compartidos, setCompartidos] = useState([]);
     const [hayCompartidos, setHayCompartidos] = useState(false)
@@ -122,6 +134,104 @@ function Hogar(){
             })
     }
 
+    function stringMes(value){
+        if (value==1){
+            return "Enero"
+        }else if(value==2){
+            return "Febrero"
+        }else if(value==3){
+            return "Marzo"
+        }else if(value==4){
+            return "Abril"
+        }else if(value==5){
+            return "Mayo"
+        }else if(value==6){
+            return "Junio"
+        }else if(value==7){
+            return "Julio"
+        }else if(value==8){
+            return "Agosto"
+        }else if(value==9){
+            return "Septiembre"
+        }else if(value==10){
+            return "Octubre"
+        }else if(value==11){
+            return "Noviembre"
+        }else if(value==12){
+            return "Diciembre"
+        }
+    }
+
+    function stringSemanal(value){
+        if (value==0){
+            return "Lunes"
+        }else if(value==1){
+            return "Martes"
+        }else if(value==2){
+            return "Miercoles"
+        }else if(value==3){
+            return "Jueves"
+        }else if(value==4){
+            return "Viernes"
+        }else if(value==5){
+            return "Sabado"
+        }else if(value==6){
+            return "Domingo"
+        }
+    }
+    
+    function handleChangeRadioTramoHorarios(value){
+        setRadioValueTramosHorarios(value)
+        var p;
+        if (value == 0){
+           p = estadisticas.tramosHoras
+           setTituloGraficaTramosHoras("KWh totales consumidos en cada hora")
+        }else if(value == 1){
+            p = estadisticas.tramosHorasMedia
+            setTituloGraficaTramosHoras("KWh de media consumidos en cada hora")
+        }
+        let aux_tramo_horario = []
+        for (var key of Object.keys(p)) {
+            aux_tramo_horario.push({'x': key,'y': p[key]})
+        }
+        setdatosTramosHorarios(aux_tramo_horario)
+    }
+
+    function handleChangeRadioTramoSemanal(value){
+        setRadioValueTramosSemanales(value)
+        var p;
+        if (value == 0){
+           p = estadisticas.tramoSemanal
+           setTituloGraficaTramosSemanales("KWh totales consumidos en cada día de la semana")
+        }else if(value == 1){
+            p = estadisticas.tramosSemanalMedia
+            setTituloGraficaTramosSemanales("KWh de media consumidos en cada día de la semana")
+        }
+        let aux_tramo_semanal = []
+        for (var key of Object.keys(p)) {
+            aux_tramo_semanal.push({'x': stringSemanal(key),'y': p[key]})
+        }
+        setdatosTramosSemanales(aux_tramo_semanal)
+    }
+
+
+    function handleChangeRadioTramoMensual(value){
+        setRadioValueTramosMensuales(value)
+        var p;
+        if (value == 0){
+           p = estadisticas.tramosMensual
+           setTituloGraficaTramosMensuales("KWh totales consumidos en cada mes")
+        }else if(value == 1){
+            p = estadisticas.tramosMensualMedia
+            setTituloGraficaTramosMensuales("KWh de media consumidos en cada mes")
+        }
+        let aux_tramo_mensual = []
+        for (var key of Object.keys(p)) {
+            aux_tramo_mensual.push({'x': stringMes(key),'y': p[key]})
+        }
+        setdatosTramosMensuales(aux_tramo_mensual)
+    }
+
     function handleChangeDispositivo(id){
         isEstadisticaLoaded(false)
         var requestOptions = {
@@ -166,6 +276,7 @@ function Hogar(){
             setHogar(data)
             setHayDispositivos(data.dispositivos.length != 0)
             setDispositivos(data.dispositivos)
+
             if (data.dispositivos.length != 0){
                 setRadioValue(data.dispositivos[0].id)
                 fetch(process.env.REACT_APP_BASE_URL + "dispositivos/" + data.dispositivos[0].id, requestOptions).then
@@ -173,7 +284,36 @@ function Hogar(){
                 ((data) =>{
                     setEstadisticas(data.estadisticas)
                     isEstadisticaLoaded(true)
+                    
+
+                    var p = data.estadisticas.tramosHoras
+                    let aux_tramo_horario = []
+                    for (var key of Object.keys(p)) {
+                        aux_tramo_horario.push({'x': key,'y': p[key]})
+                    }
+                    setRadioValueTramosHorarios(0)
+                    setdatosTramosHorarios(aux_tramo_horario)
+                    setTituloGraficaTramosHoras("KWh totales consumidos en cada de hora")
+
+                    p = data.estadisticas.tramoSemanal
+                    let aux_tramo_semanal = []
+                    for (var key of Object.keys(p)) {
+                        aux_tramo_semanal.push({'x': stringSemanal(key),'y': p[key]})
+                    }
+                    setRadioValueTramosSemanales(0)
+                    setdatosTramosSemanales(aux_tramo_semanal)
+                    setTituloGraficaTramosSemanales("KWh totales consumidos en cada día de la semana")
+
+                    p = data.estadisticas.tramosMensual
+                    let aux_tramo_mensual = []
+                    for (var key of Object.keys(p)) {
+                        aux_tramo_mensual.push({'x': stringMes(key),'y': p[key]})
+                    }
+                    setRadioValueTramosMensuales(0)
+                    setdatosTramosMensuales(aux_tramo_mensual)
+                    setTituloGraficaTramosMensuales("KWh totales consumidos en cada mes")
                 })
+                
                 fetch(process.env.REACT_APP_BASE_URL + "dispositivos/" + data.dispositivos[0].id + "/medidas?orderBy=fecha&minDate=" + minFechaDefault+"&maxDate="+maxFechaDefault, requestOptions).then
                 (response => response.json()).then
                 ((data) =>{
@@ -426,7 +566,8 @@ function Hogar(){
                                     checked={radioValue == dispositivo.id}
                                     value={dispositivo.id}
                                     onChange={(e) => {handleChangeDispositivo(e.currentTarget.value)}}
-                                    >{dispositivo.nombre}</ToggleButton>
+                                    >{dispositivo.nombre}
+                                    </ToggleButton>
                                 ))}
                             </ButtonGroup> 
                         }
@@ -439,7 +580,7 @@ function Hogar(){
                 <Row>
                     <Col></Col>
                     <Col><Row>Consumido Hoy:</Row></Col>
-                    <Col>{estadisticas.consumidoHoy} KWh ({estadisticas.sumaDiaDinero} €)</Col>
+                    <Col>{fechaDesde} KWh ({estadisticas.sumaDiaDinero} €)</Col>
                     <Col><Row>Consumido Mes:</Row></Col>
                     <Col>{estadisticas.consumidoMes} KWh ({estadisticas.sumaMesDinero} €)</Col>
                     <Col></Col>
@@ -453,120 +594,201 @@ function Hogar(){
                     <Col></Col>
                 </Row>
                 <Row>
-                    <Col></Col>
-                    <Col><Row>Mínimo diario:</Row></Col>
-                    {estadisticas.minKWHDiario === -1 && <Col>-</Col>}
-                    {estadisticas.minKWHDiario !== -1 && <Col>{estadisticas.minKWHDiario} KWh ({fechaEstadistica(estadisticas.diaMinKWHGastado)})</Col>}
-                    <Col><Row>Mínimo mensual:</Row></Col>
-                    {estadisticas.minKWHMensual === -1 && <Col>-</Col>}
-                    {estadisticas.minKWHMensual !== -1 && <Col>{estadisticas.minKWHMensual} KWh ({fechaEstadistica(estadisticas.mesMinKWHGastado)})</Col>}
-                    <Col></Col>
-                </Row>
-                <Row>
-                    <Col></Col>
-                    <Col><Row>Máximo diario:</Row></Col>
-                    {estadisticas.maxKWHDiario === -1 && <Col>-</Col>}
-                    {estadisticas.minKWHDiario !== -1 && <Col>{estadisticas.maxKWHDiario} KWh ({fechaEstadistica(estadisticas.diaMaxKWHGastado)})</Col>}
-                    <Col><Row>Máximo mensual:</Row></Col>
-                    {estadisticas.maxKWHMensual === -1 && <Col>-</Col>}
-                    {estadisticas.maxKWHMensual !== -1 && <Col>{estadisticas.maxKWHMensual} KWh ({fechaEstadistica(estadisticas.mesMaxKWHGastado)})</Col>}
-                    <Col></Col>
-                </Row>
-                <Row>
                     <Col sm={1}></Col>
                     <Col>
                         <Row>
-                            <Tabs
-                                id="controlled-tab-example"
-                                activeKey={key}
-                                onSelect={(k) => setKey(k)}
-                                className="mb-3"
-                            >
-                                <Tab eventKey="filtrar" title="Filtrar">
-                                    <Container>
-                                        <Row>
-                                            <Col sm={1}><Row>Filtrar por:</Row></Col>
-                                            <Col sm={3}><Row><label><input type="checkbox" checked={filtrarFechas} onClick={(e) => {setFiltrarFechas(!filtrarFechas)}}/> Tramos de tiempo</label></Row></Col>
-                                            <Col sm={5}><Row><label><input type="checkbox" checked={filtrarValores} onClick={(e) => {setFiltrarValores(!filtrarValores)}}/> Valores máximos y mínimos de consumo</label></Row></Col>
-                                            <Col></Col>
-                                            <Col></Col>
-                                            <Col></Col>
-                                            <Col></Col>
-                                        </Row>
-                                        <br/>
-                                        <Row>
-                                            <Col sm={4}>
-                                                <Row>
-                                                    <Col><Row>Fecha inicio:</Row></Col>
-                                                    <Col><Row><input type={"datetime-local"} value={fechaDesde} onChange={(e) =>{setFechaDesde(e.target.value)}} max={obtenerFormatoFecha(new Date())}/></Row></Col>
-                                                </Row>    
-                                            </Col>
-                                            <Col sm={1}></Col>
-                                            <Col sm={4}>
-                                                <Row>
-                                                    <Col><Row>Fecha fin:</Row></Col>
-                                                    <Col><Row><input type={"datetime-local"} value={fechaHasta} onChange={(e) =>{setFechaHasta(e.target.value)}}/></Row></Col>
-                                                </Row>    
-                                            </Col>
-                                            <Col sm={1}></Col>
-                                            <Col sm={1}><Row><Button onClick={limpiarDatosFiltro}>Limpiar</Button></Row></Col>
-                                        </Row>
-                                        <br/>
-                                        <Row>
-                                            <Col sm={4}>
-                                                <Row>
-                                                    <Col><Row>Valor mínimo:</Row></Col>
-                                                    <Col><Row><input type={"number"} value={valoresMinimo} onChange={(e) =>{setValoresMinimo(e.target.value)}}/></Row></Col>
-                                                </Row>    
-                                            </Col>
-                                            <Col sm={1}></Col>
-                                            <Col sm={4}>
-                                                <Row>
-                                                    <Col><Row>Valor máximo:</Row></Col>
-                                                    <Col><Row><input type={"number"} value={valoresMaximo} onChange={(e) =>{setValoresMaximo(e.target.value)}}/></Row></Col>
-                                                </Row>    
-                                            </Col>
-                                            <Col sm={1}></Col>
-                                            <Col sm={1}><Row><Button onClick={filtrarDatos}>Filtrar</Button></Row></Col>
-                                        </Row>
-                                        <br/>
-                                        <Row>
-                                            <Col sm={1}></Col>
-                                            <Col><AnyChart id="lineChart" width={1200} height={600} type="line" data={datos} title="KW"/></Col>
-                                            <Col sm={1}></Col>
-                                        </Row>
-                                    </Container>
-                                </Tab>
-                                <Tab eventKey="estadisticas" title="Estadisticas">
-                                    Profile
-                                </Tab>
-                                <Tab eventKey="predicciones" title="Prediciones">
-                                    Predicciones
-                                </Tab>
-                                <Tab eventKey="compararDias" title="Comparar días">
-                                    <Container>
-                                        <Row>
-                                            <Col sm={3}>
-                                                <Row>
-                                                    <Col><Row>1º Día</Row></Col>
-                                                    <Col><Row><input type={"date"} value={primerDia} onChange={(e) =>{setPrimerDia(e.target.value)}}/></Row></Col>
-                                                </Row>    
-                                            </Col>
-                                            <Col sm={1}></Col>
-                                            <Col sm={3}>
-                                                <Row>
-                                                    <Col><Row>2º Día</Row></Col>
-                                                    <Col><Row><input type={"date"} value={segundoDia} onChange={(e) =>{setSegundoDia(e.target.value)}}/></Row></Col>
-                                                </Row>    
-                                            </Col>
-                                            <Col sm={1}></Col>
-                                            <Col sm={1}><Row><Button onClick={comparacionDias}>Buscar</Button></Row></Col>
-                                            <Col sm={1}></Col>
-                                            <Col sm={1}><Row><Button onClick={limpiarDatosCompararDias}>Limpiar</Button></Row></Col>
-                                        </Row>
-                                    </Container>
-                                </Tab>
-                            </Tabs>
+            <Tabs>
+                <TabList style={{
+                    fontSize: '20px',
+                    margin: '20px',
+                    color: "#1616b7",
+                    borderRadius: '10px',
+                }}>
+                    <Tab style={{ background: '#a7f8a2', 
+                        borderRadius: '5px' }}>Filtrar</Tab>
+                    <Tab style={{ background: '#f4faa0', 
+                        borderRadius: '5px' }}>Estadisticas</Tab>
+                    <Tab style={{ background: '#f4faa0', 
+                        borderRadius: '5px' }}>Predicciones</Tab>
+                    <Tab style={{ background: '#f4faa0', 
+                        borderRadius: '5px' }}>Comparar días</Tab>
+                </TabList>
+                <TabPanel style={{ fontSize: '20px', 
+                    margin: '20px' }}>
+                    <Tabs defaultIndex={1}>
+                        <Container>
+                            <br/>
+                            <Row>
+                                <Col sm={4}>
+                                    <Row>
+                                        <Col><Row>Fecha inicio:</Row></Col>
+                                        <Col><Row><input type={"datetime-local"} value={fechaDesde} onChange={(e) =>{setFechaDesde(e.target.value)}} max={obtenerFormatoFecha(new Date())}/></Row></Col>
+                                    </Row>    
+                                </Col>
+                                <Col sm={1}></Col>
+                                <Col sm={4}>
+                                    <Row>
+                                        <Col><Row>Fecha fin:</Row></Col>
+                                        <Col><Row><input type={"datetime-local"} value={fechaHasta} onChange={(e) =>{setFechaHasta(e.target.value)}}/></Row></Col>
+                                    </Row>    
+                                </Col>
+                                <Col sm={1}></Col>
+                                <Col sm={1}><Row><Button onClick={filtrarDatos}>Filtrar</Button></Row></Col>
+                            </Row>
+                            <br/>
+                            <Row>
+                                <Col sm={1}></Col>
+                                <Col><AnyChart id="lineChart" width={1200} height={600} type="line" data={datos} title="KW"/></Col>
+                                <Col sm={1}></Col>
+                                {datos}
+                            </Row>
+                        </Container>
+                    </Tabs>
+                </TabPanel>
+                <TabPanel style={{ fontSize: '20px', 
+                    margin: '20px' }}>
+                    <Tabs>
+                        <TabList>
+                            <Tab style={{ background: '#f5e5f8', 
+                                borderRadius: '5px' }}>Tramos</Tab>
+                            <Tab style={{ background: '#f2f9a0', 
+                                borderRadius: '5px' }}>Historico</Tab>
+                        </TabList>
+                        <TabPanel>
+                            <p style={{ color: 'blue' }}>
+                                Aqui van los tramos</p>
+  
+                        </TabPanel>
+                        <TabPanel>
+                            <Row>
+                                <Col>
+                                    <ButtonGroup>
+                                        <ToggleButton
+                                            id={"tramoHorarioTotal1"}
+                                            variant="outline-secondary"
+                                            type="radio"
+                                            name="radioTramoHorarioTotal"
+                                            checked={radioValueTramosHorarios == 0}
+                                            value={0}
+                                            onChange={(e) => {handleChangeRadioTramoHorarios(e.currentTarget.value)}}
+                                            >
+                                            Tramo horario total
+                                        </ToggleButton>
+            
+                                        <ToggleButton
+                                            id={"tramoHorarioTotal2"}
+                                            variant="outline-secondary"
+                                            type="radio"
+                                            name="radioTramoHorarioTotal"
+                                            checked={radioValueTramosHorarios == 1}
+                                            value={1}
+                                            onChange={(e) => {handleChangeRadioTramoHorarios(e.currentTarget.value)}}
+                                            >
+                                            Tramo horario media
+                                        </ToggleButton>
+                                    </ButtonGroup>
+                                </Col>
+                            </Row>
+                            <Row>
+                                <Col><AnyChart data={datosTramosHorarios} id={"TramoSemanas"} name={"TramoHorario"} type="column" title={tituloGraficaTramosHoras} width={1300} height={500} xAxis={[0, {title:"Horas"}]} yAxis={[0, {title:"KWh"}]}/></Col>
+                            </Row>
+
+                            <Row >
+                                <Col>
+                                    <ButtonGroup>
+                                        <ToggleButton
+                                            id={"tramoSemanalTotal1"}
+                                            variant="outline-secondary"
+                                            type="radio"
+                                            name="radioTramoSemanal"
+                                            checked={radioValueTramosSemanales == 0}
+                                            value={0}
+                                            onChange={(e) => {handleChangeRadioTramoSemanal(e.currentTarget.value)}}
+                                            >
+                                            Tramo semanal total
+                                        </ToggleButton>
+            
+                                        <ToggleButton
+                                            id={"tramoSemanalTotal2"}
+                                            variant="outline-secondary"
+                                            type="radio"
+                                            name="radioTramoSemanal"
+                                            checked={radioValueTramosSemanales == 1}
+                                            value={1}
+                                            onChange={(e) => {handleChangeRadioTramoSemanal(e.currentTarget.value)}}
+                                            >
+                                            Tramo semanal media
+                                        </ToggleButton>
+                                    </ButtonGroup>
+                                </Col>
+                            </Row>
+                            <Row>
+                                <Col><AnyChart id={"TramoSemanas"} name={"TramoSemanal"} data={datosTramosSemanales} type="column" title={tituloGraficaTramosSemanales} width={1300} height={500} xAxis={[0, {title:"Dias"}]} yAxis={[0, {title:"KWh"}]}/></Col>
+                            </Row>
+                            <Row >
+                                <Col>
+                                    <ButtonGroup>
+                                        <ToggleButton
+                                            id={"tramoMensualTotal1"}
+                                            variant="outline-secondary"
+                                            type="radio"
+                                            name="radioTramoMensual"
+                                            checked={radioValueTramosMensuales == 0}
+                                            value={0}
+                                            onChange={(e) => {handleChangeRadioTramoMensual(e.currentTarget.value)}}
+                                            >
+                                            Tramo mensual total
+                                        </ToggleButton>
+            
+                                        <ToggleButton
+                                            id={"tramoMensualTotal2"}
+                                            variant="outline-secondary"
+                                            type="radio"
+                                            name="radioTramoMensual"
+                                            checked={radioValueTramosMensuales == 1}
+                                            value={1}
+                                            onChange={(e) => {handleChangeRadioTramoMensual(e.currentTarget.value)}}
+                                            >
+                                            Tramo Mensual media
+                                        </ToggleButton>
+                                    </ButtonGroup>
+                                </Col>
+                            </Row>
+                            <Row>
+                                <Col><AnyChart id={"TramoMensual"} name={"TramoMensual"} data={datosTramosMensuales} type="column" title={tituloGraficaTramosMensuales} width={1300} height={500} xAxis={[0, {title:"Meses"}]} yAxis={[0, {title:"KWh"}]}/></Col>
+                            </Row>
+                        </TabPanel>
+                    </Tabs>
+                </TabPanel>
+            
+                <TabPanel style={{ fontSize: '20px', margin: '20px' }}>
+                    Predicciones
+                </TabPanel>
+                <TabPanel style={{ fontSize: '20px', margin: '20px' }}>
+                    <Container>
+                        <Row>
+                            <Col sm={3}>
+                                <Row>
+                                    <Col><Row>1º Día</Row></Col>
+                                    <Col><Row><input type={"date"} value={primerDia} onChange={(e) =>{setPrimerDia(e.target.value)}}/></Row></Col>
+                                </Row>    
+                            </Col>
+                            <Col sm={1}></Col>
+                            <Col sm={3}>
+                                <Row>
+                                    <Col><Row>2º Día</Row></Col>
+                                    <Col><Row><input type={"date"} value={segundoDia} onChange={(e) =>{setSegundoDia(e.target.value)}}/></Row></Col>
+                                </Row>    
+                            </Col>
+                            <Col sm={1}></Col>
+                            <Col sm={1}><Row><Button onClick={comparacionDias}>Buscar</Button></Row></Col>
+                            <Col sm={1}></Col>
+                            <Col sm={1}><Row><Button onClick={limpiarDatosCompararDias}>Limpiar</Button></Row></Col>
+                        </Row>
+                    </Container>
+                </TabPanel> 
+            </Tabs>                   
+                                    
                         </Row>
                     </Col>
                     <Col sm={1}></Col>
@@ -579,5 +801,5 @@ function Hogar(){
     }
     
 }
-
 export default Hogar;
+//JSON.stringify(obj)
