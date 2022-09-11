@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Button, ButtonGroup, Col, Container, FormGroup, Row, ToggleButton} from "react-bootstrap";
+import { Button, ButtonGroup, Col, Container, FormGroup, Row, Table, ToggleButton} from "react-bootstrap";
 import { useParams } from "react-router-dom";
 import Loading from "../components/Loading";
 import Modal from 'react-bootstrap/Modal'
@@ -11,12 +11,13 @@ import SideBar from "../components/SideBar.js";
 import LoadingVentanaEmergente from "../components/LoadingVentanaEmergente";
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 import 'react-tabs/style/react-tabs.css';
+import { Calendar, momentLocalizer } from 'react-big-calendar'
+import moment from 'moment'
 
 function Hogar(){
     let {id} = useParams();
     const minFechaDefault = obtenerFormatoFecha(new Date(new Date().getTime() - 24*60*60*1000))
     const maxFechaDefault = obtenerFormatoFecha(new Date())
-
     const [loading, isLoading] = useState(false)
 
     const [hogar, setHogar] = useState(null)
@@ -26,6 +27,9 @@ function Hogar(){
     const [radioValue, setRadioValue] = useState('1');
     const [hayDispositivos, setHayDispositivos] = useState(false);
     const [datos, setDatos] = useState([]);
+
+    const [xAxisFiltro, setxAxisFiltro] = useState(false)
+
 
     const [tituloGraficaTramosHoras, setTituloGraficaTramosHoras] = useState(null)
     const [tituloGraficaTramosSemanales, setTituloGraficaTramosSemanales] = useState(null)
@@ -284,7 +288,7 @@ function Hogar(){
                 ((data) =>{
                     setEstadisticas(data.estadisticas)
                     isEstadisticaLoaded(true)
-                    
+                    setxAxisFiltro("Horas")
 
                     var p = data.estadisticas.tramosHoras
                     let aux_tramo_horario = []
@@ -312,8 +316,10 @@ function Hogar(){
                     setRadioValueTramosMensuales(0)
                     setdatosTramosMensuales(aux_tramo_mensual)
                     setTituloGraficaTramosMensuales("KWh totales consumidos en cada mes")
+                    
                 })
-                
+                setFechaDesde(minFechaDefault)
+                setFechaHasta(maxFechaDefault)
                 fetch(process.env.REACT_APP_BASE_URL + "dispositivos/" + data.dispositivos[0].id + "/medidas?orderBy=fecha&minDate=" + minFechaDefault+"&maxDate="+maxFechaDefault, requestOptions).then
                 (response => response.json()).then
                 ((data) =>{
@@ -322,7 +328,9 @@ function Hogar(){
                         data.map((dato) => {
                             let hora = dato.fecha.split("T")[1]
                             hora = hora.substring(0,hora.length-1)
-                            aux.push([fechaEstadistica(dato.fecha)+" "+hora,dato.kw])
+                            hora = hora.split(":")
+                            hora = hora[0] + ":" + hora[1]
+                            aux.push([hora,dato.kw])
                         })
                     }
                     setDatos(aux)
@@ -362,27 +370,23 @@ function Hogar(){
 
         };
         let filtro = ""
-        if(filtrarFechas){ 
-            if(fechaDesde != ""){
-                filtro += "&minDate="+obtenerFormatoFecha(new Date(fechaDesde))
-            }
-            if(fechaHasta != ""){
-                console.log("hola")
-                filtro += "&maxDate="+obtenerFormatoFecha(new Date(fechaHasta))
-            }
-            if(fechaDesde == "" && fechaHasta == ""){
-                filtro += "&minDate="+minFechaDefault+"&maxDate="+maxFechaDefault
-            }
-        }else{
+        var fecha_ini = new Date(fechaDesde)
+        var fecha_fin = new Date(fechaHasta)
+        var diff = (fecha_fin - fecha_ini)/(1000*60*60*24);
+        console.log(diff)
+        if(fechaDesde != ""){
+            filtro += "&minDate="+obtenerFormatoFecha(new Date(fechaDesde))
+        }
+        if(fechaHasta != ""){
+            filtro += "&maxDate="+obtenerFormatoFecha(new Date(fechaHasta))
+        }
+        if(fechaDesde == "" && fechaHasta == ""){
             filtro += "&minDate="+minFechaDefault+"&maxDate="+maxFechaDefault
         }
-        if(filtrarValores){
-            if(valoresMinimo != ""){
-                filtro += "&minData="+valoresMinimo
-            }
-            if(fechaHasta != ""){
-                filtro += "&maxData="+valoresMaximo
-            }
+        if (diff <= 1){
+            setxAxisFiltro("Horas")
+        }else{
+            setxAxisFiltro("Dias")
         }
         fetch(process.env.REACT_APP_BASE_URL + "dispositivos/" + radioValue + "/medidas?orderBy=fecha" + filtro, requestOptions).then
         (response => response.json()).then
@@ -390,9 +394,17 @@ function Hogar(){
             let aux = []
             if(data.length !== 0){
                 data.map((dato) => {
-                    let hora = dato.fecha.split("T")[1]
-                    hora = hora.substring(0,hora.length-1)
-                    aux.push([fechaEstadistica(dato.fecha)+" "+hora,dato.kw])
+                    if (diff > 1){
+                        aux.push([fechaEstadistica(dato.fecha),dato.kw])
+                        
+                    }else{
+                        let hora = dato.fecha.split("T")[1]
+                        hora = hora.substring(0,hora.length-1)
+                        hora = hora.split(":")
+                        hora = hora[0] + ":" + hora[1]
+                        aux.push([hora,dato.kw])
+                    }
+                    
                 })
             }
             setDatos(aux)
@@ -580,7 +592,7 @@ function Hogar(){
                 <Row>
                     <Col></Col>
                     <Col><Row>Consumido Hoy:</Row></Col>
-                    <Col>{fechaDesde} KWh ({estadisticas.sumaDiaDinero} €)</Col>
+                    <Col>{estadisticas.consumidoHoy} KWh ({estadisticas.sumaDiaDinero} €)</Col>
                     <Col><Row>Consumido Mes:</Row></Col>
                     <Col>{estadisticas.consumidoMes} KWh ({estadisticas.sumaMesDinero} €)</Col>
                     <Col></Col>
@@ -593,6 +605,7 @@ function Hogar(){
                     <Col>{estadisticas.mediaKWHMensual} KWh ({(estadisticas.mediaKWHMensual > 0 && estadisticas.sumaMediaMensualDinero == 0? "~ " : "") + estadisticas.sumaMediaMensualDinero} €)</Col>
                     <Col></Col>
                 </Row>
+                    
                 <Row>
                     <Col sm={1}></Col>
                     <Col>
@@ -638,9 +651,9 @@ function Hogar(){
                             <br/>
                             <Row>
                                 <Col sm={1}></Col>
-                                <Col><AnyChart id="lineChart" width={1200} height={600} type="line" data={datos} title="KW"/></Col>
+                                {datos!="" && <Col><AnyChart id="lineChart" width={1200} height={600} type="line" data={datos} title="Potencia registrada en el tramo de tiempo filtrado" yScale={{minimum:0}} xAxis={[0, {title:xAxisFiltro}]}  yAxis={[0, {title:"KW"}]} /></Col>}
+                                {datos=="" && <Col>No hay ninguna medida registrada con estos filtros</Col>}
                                 <Col sm={1}></Col>
-                                {datos}
                             </Row>
                         </Container>
                     </Tabs>
@@ -652,15 +665,10 @@ function Hogar(){
                             <Tab style={{ background: '#f5e5f8', 
                                 borderRadius: '5px' }}>Tramos</Tab>
                             <Tab style={{ background: '#f2f9a0', 
-                                borderRadius: '5px' }}>Historico</Tab>
+                                borderRadius: '5px' }}>Histórico</Tab>
                         </TabList>
                         <TabPanel>
-                            <p style={{ color: 'blue' }}>
-                                Aqui van los tramos</p>
-  
-                        </TabPanel>
-                        <TabPanel>
-                            <Row>
+                        <Row>
                                 <Col>
                                     <ButtonGroup>
                                         <ToggleButton
@@ -757,6 +765,35 @@ function Hogar(){
                             <Row>
                                 <Col><AnyChart id={"TramoMensual"} name={"TramoMensual"} data={datosTramosMensuales} type="column" title={tituloGraficaTramosMensuales} width={1300} height={500} xAxis={[0, {title:"Meses"}]} yAxis={[0, {title:"KWh"}]}/></Col>
                             </Row>
+                        </TabPanel>
+                        <TabPanel>
+                            <Table striped bordered hover title="Top dias mas consumidos del año" >
+                                <thead>
+                                    <tr>
+                                    <th>Fecha</th>
+                                    <th>Energía consumida</th>
+                                    <th>Dinero</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {(estadisticas.historicoMasConsumido.anualDiasMasConsumidos).map((est) => {
+                                        return(
+                                            <tr>
+                                                <td>
+                                                    {poner0(est.dia)}/{poner0(est.mes)}/{(est.year)}
+                                                </td>
+                                                <td>
+                                                    {Math.round(est.energia_consumida*1000)/1000} KWh
+                                                </td>
+                                                <td>
+                                                    {Math.round(est.precio_estimado*100)/100} euros
+                                                </td>
+                                            </tr>
+                                        );
+                                    })}
+                
+                                </tbody>
+                            </Table>
                         </TabPanel>
                     </Tabs>
                 </TabPanel>
