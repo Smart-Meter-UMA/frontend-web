@@ -59,6 +59,10 @@ function Hogar(){
     const [listaHistoricoMensualDiasMasConsumidos, setlistaHistoricoMensualDiasMasConsumidos] = useState([]);
     const [listaHistoricoAnualMesesMasConsumidos, setlistaHistoricoAnualMesesMasConsumidos] = useState([]);
 
+    const [prediccionDia, setPrediccionDia] = useState([]);
+    const [inputPrediccionDia, setinputPrediccionDia] = useState(null);
+    const [inputPrediccionSemana, setinputPrediccionSemana] = useState(null);
+    const [prediccionSemana, setprediccionSemana] = useState([]);
 
     const [compartidos, setCompartidos] = useState([]);
     const [hayCompartidos, setHayCompartidos] = useState(false)
@@ -179,6 +183,21 @@ function Hogar(){
         let listadoHistoricoAnualDiasMasConsumidosAux = estadisticas.historicoMasConsumido.anualMesesMasConsumidos.filter(est => est.year == historicoDiasMasConsumidos)
         sethistoricoAnualMesesMasConsumidos(historicoDiasMasConsumidos)
         setlistaHistoricoAnualMesesMasConsumidos(listadoHistoricoAnualDiasMasConsumidosAux)
+      };
+
+      const prediccionDiaInput = event => {
+        setprediccionSemana([])
+        var requestOptions = {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json','Authorization' : sessionStorage.getItem("token")},
+            body: JSON.stringify({"fecha": inputPrediccionDia})
+        };
+        fetch(process.env.REACT_APP_BASE_URL + "prediccion/precios/dia/", requestOptions).then
+        (response => response.json()).then
+        ((data) =>{
+            setPrediccionDia(data.list)
+        }
+        )
       };
 
     function stringMes(value){
@@ -1102,38 +1121,15 @@ function Hogar(){
                         <form>
                             <label>Fecha: </label>
                             &nbsp; &nbsp;
-                            <input type="date"></input>
+                            <input type="date" value={inputPrediccionDia} onChange={(e) =>{setinputPrediccionDia(e.target.value)}}></input>
+                            <Button onClick={prediccionDiaInput}>Filtrar</Button>
+                            {prediccionDia != "" && 
+                                prediccionDia.toString()
+                            }
                         </form>
                     </Row>
                     <Row>
-                        <br/>
-                        {(estadisticas.historicoMasConsumido.historicamenteMesesMasConsumidos.length === 0) ? <p>No hay ningún valor disponible </p> : 
-                            <Table striped bordered hover title="Predicción" >
-                                <thead>
-                                    <tr>
-                                    <th>Fecha</th>
-                                    <th>Precio KWh</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {(estadisticas.historicoMasConsumido.historicamenteMesesMasConsumidos).map((est) => {
-                                        return(
-                                            <tr>
-                                                <td>
-                                                    {stringMes(est.mes)} del {(est.year)}
-                                                </td>
-                                                <td>
-                                                    {Math.round(est.energia_consumida*1000)/1000} KWh
-                                                </td>
-                                                <td>
-                                                    {Math.round(est.precio_estimado*100)/100} euros
-                                                </td>
-                                            </tr>
-                                        );
-                                    })}
-                                </tbody>
-                            </Table>
-                        }
+                        
                     </Row>
                 </TabPanel>
                 <TabPanel style={{ fontSize: '20px', margin: '20px' }}>
