@@ -1123,14 +1123,32 @@ function Hogar(){
                             &nbsp; &nbsp;
                             <input type="date" value={inputPrediccionDia} onChange={(e) =>{setinputPrediccionDia(e.target.value)}}></input>
                             <Button onClick={prediccionDiaInput}>Filtrar</Button>
-                            {prediccionDia != "" && 
-                                prediccionDia.toString()
-                            }
-                        </form>
+                            </form>
                     </Row>
-                    <Row>
-                        
-                    </Row>
+                    {(prediccionDia == "") ? <p>No hay ningún valor disponible </p> : 
+                        <Table striped bordered hover title="Top meses mas consumidos historicamente" >
+                            <thead>
+                                <tr>
+                                    <th>Fecha</th>
+                                    <th>Predicción de precio</th>
+                                </tr>
+                            </thead> 
+                            <tbody>
+                                {(prediccionDia).map((pred) => {
+                                    return(
+                                        <tr>
+                                            <td>
+                                                {poner0(new Date(pred.fecha).getDate())}/{poner0(new Date(pred.fecha).getMonth()+1)}/{new Date(pred.fecha).getFullYear()} - {pred.fecha.toString().substring(11, 16)}
+                                            </td>
+                                            <td>
+                                                {Math.round(pred.real*100)/100} €/MWh
+                                            </td>
+                                        </tr>
+                                    );
+                                })}
+                            </tbody>
+                        </Table>
+                    }
                 </TabPanel>
                 <TabPanel style={{ fontSize: '20px', margin: '20px' }}>
                         <Row>
