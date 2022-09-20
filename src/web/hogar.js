@@ -554,6 +554,7 @@ function Hogar(){
     function comparacionDias(){
         handleShowCompararDias()
         handleShowLoadingCompararDias()
+
         var requestOptions = {
             method: 'GET',
             headers: { 'Authorization' : sessionStorage.getItem("token") }
@@ -576,6 +577,8 @@ function Hogar(){
                 }
                 setPrimerDiaDatos(aux)
                 handleCloseLoadingCompararDias()
+                var lineSeries1 =  chartPrediccion.line(aux);
+
             })
         }else{
             handleCloseLoadingCompararDias()
@@ -598,13 +601,13 @@ function Hogar(){
                 }
                 setSegundoDiaDatos(aux)
                 handleCloseLoadingCompararDias()
+                var lineSeries2 =  chartPrediccion.line(aux);
             })
+
         }else{
             handleCloseLoadingCompararDias()
         }
         
-        var lineSeries1 = chartPrediccion.line(primerDiaDatos);
-        var lineSeries2 = chartPrediccion.line(segundoDiaDatos);
     }
 
     if(!loadedDatos){
@@ -734,14 +737,10 @@ function Hogar(){
                     color: "#1616b7",
                     borderRadius: '10px',
                 }}>
-                    <Tab style={{ background: '#a7f8a2', 
-                        borderRadius: '5px' }}>Filtrar</Tab>
-                    <Tab style={{ background: '#f4faa0', 
-                        borderRadius: '5px' }}>Estadisticas</Tab>
-                    <Tab style={{ background: '#f4faa0', 
-                        borderRadius: '5px' }}>Predicciones</Tab>
-                    <Tab style={{ background: '#f4faa0', 
-                        borderRadius: '5px' }}>Comparar días</Tab>
+                    <Tab style={{borderRadius: '5px' }}>Filtrar</Tab>
+                    <Tab style={{borderRadius: '5px' }}>Estadisticas</Tab>
+                    <Tab style={{borderRadius: '5px' }}>Predicciones</Tab>
+                    <Tab style={{borderRadius: '5px' }}>Comparar días</Tab>
                 </TabList>
                 <TabPanel style={{ fontSize: '20px', 
                     margin: '20px' }}>
@@ -780,10 +779,8 @@ function Hogar(){
                     margin: '20px' }}>
                     <Tabs>
                         <TabList>
-                            <Tab style={{ background: '#f5e5f8', 
-                                borderRadius: '5px' }}>Tramos</Tab>
-                            <Tab style={{ background: '#f2f9a0', 
-                                borderRadius: '5px' }}>Histórico</Tab>
+                            <Tab style={{ borderRadius: '5px' }}>Tramos</Tab>
+                            <Tab style={{ borderRadius: '5px' }}>Histórico</Tab>
                         </TabList>
                         <TabPanel>
                             <Row>
@@ -1059,7 +1056,7 @@ function Hogar(){
                                                             return(
                                                                 <tr>
                                                                     <td>
-                                                                        {stringMes(key)(est.mes)} del {(est.year)}
+                                                                        {stringMes(est.mes)} del {(est.year)}
                                                                     </td>
                                                                     <td>
                                                                         {Math.round(est.energia_consumida*1000)/1000} KWh
