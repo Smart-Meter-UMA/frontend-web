@@ -1,5 +1,6 @@
 import ReactLoading from 'react-loading';
 
+import React, { useEffect, useState, Component } from "react";
 
 function Loading() { 
     return(

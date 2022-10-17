@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState, Component } from "react";
 import Loading from "../components/Loading";
 import { Button, Col, Container, Form, Row } from "react-bootstrap";
 import {toast, ToastContainer} from 'react-toastify';

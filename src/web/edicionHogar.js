@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState, Component } from "react";
+
 import { Button, Col, Container, Row, Modal,Tab, Nav, Card, OverlayTrigger, Tooltip, ButtonGroup } from "react-bootstrap";
 import { useParams } from "react-router-dom";
 import Loading from "../components/Loading";

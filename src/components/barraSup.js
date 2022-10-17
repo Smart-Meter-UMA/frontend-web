@@ -1,7 +1,7 @@
 import { Container, Nav, Navbar, NavDropdown, Row, Col, Button } from "react-bootstrap";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import logo from '../assets/logoSmartMeterNoFondo2.png';
-import { useEffect, useState } from "react";
+import React, { useEffect, useState, Component } from "react";
 import Modal from 'react-bootstrap/Modal'
 import LoadingVentanaEmergente from "./LoadingVentanaEmergente";
 import AnyChart from 'anychart-react'

@@ -1,11 +1,10 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState, Component } from "react";
 import { Button, ButtonGroup, Col, Container, FormGroup, Row, Table, ToggleButton} from "react-bootstrap";
 import { useParams } from "react-router-dom";
 import Loading from "../components/Loading";
 import Modal from 'react-bootstrap/Modal'
 import AnyChart from 'anychart-react'
 import anychart from 'anychart'
-import React from 'react'; 
 import {toast, ToastContainer} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import SideBar from "../components/SideBar.js";

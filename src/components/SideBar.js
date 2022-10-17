@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState, Component } from "react";
 import { Button, Card, Col, Container, Row, Stack } from "react-bootstrap";
 import iconoBorrar from "../assets/papelera.png"
 

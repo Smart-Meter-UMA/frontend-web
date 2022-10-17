@@ -1,6 +1,7 @@
 import { Col, Container, Row } from 'react-bootstrap';
 import ReactLoading from 'react-loading';
 
+import React, { useEffect, useState, Component } from "react";
 
 function LoadingVentanaEmergente() { 
     return(

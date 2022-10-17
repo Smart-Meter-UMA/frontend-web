@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState, Component } from "react";
 import { Button, Col, Container, Nav, OverlayTrigger, Row, Tab, Table, Tabs, Tooltip } from "react-bootstrap";
 import iconoI from "../assets/iconoI.png"
 import Loading from "../components/Loading";

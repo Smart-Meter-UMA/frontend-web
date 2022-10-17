@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState, Component } from "react";
 import Loading from '../components/Loading'
 import AnyChart from 'anychart-react'
 import anychart from 'anychart'

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useEffect, useState, Component } from "react";
 import { Button, Col, Container, OverlayTrigger, Row, Tooltip } from "react-bootstrap";
 import iconoI from "../assets/iconoI.png"
 import {toast, ToastContainer} from 'react-toastify';

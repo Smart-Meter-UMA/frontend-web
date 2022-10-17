@@ -10,6 +10,7 @@ import EdicionHogar from './web/edicionHogar';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import ValoresEnergia from './web/valoresEnergia';
 import AddTarifa from './web/addTarifa';
+import React, { useEffect, useState, Component } from "react";
 
 function App() {
   return (
