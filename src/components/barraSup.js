@@ -182,9 +182,9 @@ function rechazarInvitacion(id, hogar){
                       <h5>No tienes invitaciones!</h5>
                   }
                   {hayInvitaciones &&
-                      invitaciones.map((invitacion) => (
+                      invitaciones.map((invitacion,i ) => (
                         <>
-                          <Row>
+                          <Row key={i}>
                               <Col sm={3}>{invitacion.ofertante.email}</Col>
                               <Col sm={3}>{invitacion.hogarInvitado.nombre}</Col>
                               <Col sm={3}><Button onClick={() => {aceptarInvitacion(invitacion.id, invitacion.hogarInvitado)}}>Aceptar</Button>{' '}</Col>
@@ -235,8 +235,8 @@ function rechazarInvitacion(id, hogar){
       <Navbar.Collapse id="basic-navbar-nav">
       <Nav className="me-auto">
         <NavDropdown title="Hogares" id="basic-nav-dropdown">
-          {hogares.map((hogar) => (
-            <NavDropdown.Item href={"/hogar/"+hogar.id}>{hogar.nombre}</NavDropdown.Item>
+          {hogares.map((hogar, i) => (
+            <NavDropdown.Item key={i} href={"/hogar/"+hogar.id}>{hogar.nombre}</NavDropdown.Item>
           ))}
           {hogares.length !== 0 &&  <NavDropdown.Divider />}
           <NavDropdown.Item href="/registro/hogar">Nuevo hogar</NavDropdown.Item>
